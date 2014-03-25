@@ -1,15 +1,15 @@
-use v5.10;
+use 5.008001;
 use strict;
 use warnings;
 
-package Dist::Zilla::Plugin::BumpVersionAfterRelease;
-# ABSTRACT: Bump module versions after distribution release
+package Dist::Zilla::Plugin::RewriteVersion;
+# ABSTRACT: Rewrite version declarations to match the distribution version
 
 our $VERSION = '0.001';
 
 use Moose;
 with(
-    'Dist::Zilla::Role::AfterRelease' => { -version => 5 },
+    'Dist::Zilla::Role::FileMunger' => { -version => 5 },
     'Dist::Zilla::Role::FileFinderUser' =>
       { default_finders => [ ':InstallModules', ':ExecFiles' ], },
 );
@@ -17,16 +17,14 @@ with(
 use namespace::autoclean;
 use version ();
 
-sub after_release {
-    my ($self) = @_;
+sub munge_files {
+    my $self = shift;
     $self->munge_file($_) for @{ $self->found_files };
     return;
 }
 
 sub munge_file {
     my ( $self, $file ) = @_;
-
-    require Version::Next;
 
     return if $file->is_bytes;
 
@@ -35,18 +33,13 @@ sub munge_file {
         return;
     }
 
-    if ( !-r $file->name ) {
-        $self->log_debug( [ 'Skipping: "%s" not found in source', $file->name ] );
-        return;
-    }
-
     my $version = $self->zilla->version;
 
     $self->log_fatal("$version is not a valid version string")
       unless version::is_lax($version);
 
-    if ( $self->rewrite_version( $file, Version::Next::next_version($version) ) ) {
-        $self->log_debug( [ 'bumped $VERSION in %s', $file->name ] );
+    if ( $self->rewrite_version( $file, $version ) ) {
+        $self->log_debug( [ 'adding $VERSION assignment to %s', $file->name ] );
     }
     else {
         $self->log( [ q[Skipping: no "our $VERSION = '...'" found in "%s"], $file->name ] );
@@ -61,23 +54,20 @@ my $assign_regex = qr{
 sub rewrite_version {
     my ( $self, $file, $version ) = @_;
 
-    require Path::Tiny;
-
-    my $iolayer = sprintf( ":raw:encoding(%s)", $file->encoding );
-
-    # read source file
-    my $content = Path::Tiny::path( $file->name )->slurp( { binmode => $iolayer } );
+    my $content = $file->content;
 
     my $comment = $self->zilla->is_trial ? ' # TRIAL' : '';
     my $code = "our \$VERSION = '$version';$comment";
 
     if ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms ) {
-        Path::Tiny::path( $file->name )->spew( { binmode => $iolayer }, $content );
+        $file->content($content);
         return 1;
     }
 
     return;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -90,20 +80,19 @@ sub rewrite_version {
     our $VERSION = '1.23';
 
     # in your dist.ini
-    [BumpVersionAfterRelease]
+    [RewriteVersion]
 
 =head1 DESCRIPTION
 
-This module overwrites an existing C<our $VERSION = '1.23'> declaration in your
-original source code after a release with the next version number after the
-released version as determined by L<Version::Next>.  Only the B<first>
-occurance is affected and it must exactly match this regular expression:
+This module overwrites an existing C<our $VERSION = '1.23'> declaration in
+your code.  Only the B<first> occurance is affected and it must exactly
+match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 
-This is indended to let you keep a version number in your source files that
-will be the default version for the next release using
-L<Dist::Zilla::Plugin::VersionFromModule>.
+This is intended to let you leave a C<$VERSION> in your module files in the
+repository, but replacing the C<$VERSION> with the distribution release
+version when you build/release with C<Dist::Zilla>.
 
 The very restrictive regular expression format is intentional to avoid
 the various ways finding a version assignment could go wrong and to avoid
@@ -111,7 +100,12 @@ using L<PPI>, which has similar complexity issues.
 
 For most modules, this should work just fine.
 
-XXX discuss commit after build, etc.
+=head1 SEE ALSO
+
+=for :list
+* L<Dist::Zilla::Plugin::PkgVersion>
+* L<Dist::Zilla::Plugin::OurPkgVersion>
+* L<Dist::Zilla::Plugin::OverridePkgVersion>
 
 =cut
 
