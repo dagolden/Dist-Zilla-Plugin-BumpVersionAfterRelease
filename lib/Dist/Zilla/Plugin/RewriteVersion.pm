@@ -71,7 +71,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=for Pod::Coverage BUILD
+=for Pod::Coverage munge_files munge_file rewrite_version
 
 =head1 SYNOPSIS
 
@@ -84,15 +84,13 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 DESCRIPTION
 
-This module overwrites an existing C<our $VERSION = '1.23'> declaration in
-your code.  Only the B<first> occurrence is affected and it must exactly
-match this regular expression:
+This module munges an existing C<our $VERSION = '1.23'> declaration in your
+code to match the version of the distribution.  Only the B<first> occurrence is
+affected and it must exactly match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 
-This is intended to let you leave a C<$VERSION> in your module files in the
-repository, but replacing the C<$VERSION> with the distribution release
-version when you build/release with C<Dist::Zilla>.
+It must be at the start of a line and any trailing comments are deleted.
 
 The very restrictive regular expression format is intentional to avoid
 the various ways finding a version assignment could go wrong and to avoid
@@ -100,12 +98,8 @@ using L<PPI>, which has similar complexity issues.
 
 For most modules, this should work just fine.
 
-=head1 SEE ALSO
-
-=for :list
-* L<Dist::Zilla::Plugin::PkgVersion>
-* L<Dist::Zilla::Plugin::OurPkgVersion>
-* L<Dist::Zilla::Plugin::OverridePkgVersion>
+See L<BumpVersionAfterRelease|Dist::Zilla::Plugin::BumpVersionAfterRelease> for
+more details and usage examples.
 
 =cut
 
