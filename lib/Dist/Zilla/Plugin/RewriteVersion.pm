@@ -85,7 +85,7 @@ __PACKAGE__->meta->make_immutable;
 =head1 DESCRIPTION
 
 This module overwrites an existing C<our $VERSION = '1.23'> declaration in
-your code.  Only the B<first> occurance is affected and it must exactly
+your code.  Only the B<first> occurrence is affected and it must exactly
 match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx

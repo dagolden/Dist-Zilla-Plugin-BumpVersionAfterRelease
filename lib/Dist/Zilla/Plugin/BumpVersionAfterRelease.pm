@@ -97,11 +97,11 @@ sub rewrite_version {
 This module overwrites an existing C<our $VERSION = '1.23'> declaration in your
 original source code after a release with the next version number after the
 released version as determined by L<Version::Next>.  Only the B<first>
-occurance is affected and it must exactly match this regular expression:
+occurrence is affected and it must exactly match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 
-This is indended to let you keep a version number in your source files that
+This is intended to let you keep a version number in your source files that
 will be the default version for the next release using
 L<Dist::Zilla::Plugin::VersionFromModule>.
 
