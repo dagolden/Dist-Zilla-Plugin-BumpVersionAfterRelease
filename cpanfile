@@ -31,8 +31,6 @@ on 'configure' => sub {
 
 on 'develop' => sub {
   requires "Dist::Zilla" => "5.014";
-  requires "Dist::Zilla::Plugin::Bootstrap::lib" => "0";
-  requires "Dist::Zilla::Plugin::RewriteVersion" => "0";
   requires "Dist::Zilla::PluginBundle::DAGOLDEN" => "0.061";
   requires "File::Spec" => "0";
   requires "File::Temp" => "0";
