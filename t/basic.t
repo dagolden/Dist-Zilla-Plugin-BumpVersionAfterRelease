@@ -45,10 +45,10 @@ my @cases = (
 );
 
 sub _regex_for_version {
-    my ( $version, $trailing ) = @_;
+    my ( $q, $version, $trailing ) = @_;
     my $exp = $trailing
-      ? qr{^our \$VERSION = '\Q$version\E'; \Q$trailing\E}m
-      : qr{^our \$VERSION = '\Q$version\E';}m;
+      ? qr{^our \$VERSION = $q\Q$version\E$q; \Q$trailing\E}m
+      : qr{^our \$VERSION = $q\Q$version\E$q;}m;
     return $exp;
 }
 
@@ -66,19 +66,35 @@ for my $c (@cases) {
 
         like(
             $tzil->slurp_file('source/lib/DZT/Sample.pm'),
-            _regex_for_version( '0.001', "# comment" ),
-            "version line correct in source file",
+            _regex_for_version( q['], '0.001', "# comment" ),
+            "single-quoted version line correct in source file",
+        );
+
+        like(
+            $tzil->slurp_file('source/lib/DZT/DQuote.pm'),
+            _regex_for_version( q["], '0.001', "# comment" ),
+            "double-quoted version line correct in source file",
         );
 
         my $built = $tzil->slurp_file('build/lib/DZT/Sample.pm');
 
         like(
             $built,
-            _regex_for_version( $version, $c->{trial} ? "# TRIAL" : "" ),
-            "version line correct in built file",
+            _regex_for_version( q['], $version, $c->{trial} ? "# TRIAL" : "" ),
+            "single-quoted version line correct in built file",
         );
 
-        like( $built, qr/1;\s+# last line/, "last line correct in built file" );
+        like( $built, qr/1;\s+# last line/, "last line correct in single-quoted file" );
+
+        $built = $tzil->slurp_file('build/lib/DZT/DQuote.pm');
+
+        like(
+            $built,
+            _regex_for_version( q['], $version, $c->{trial} ? "# TRIAL" : "" ),
+            "double-quoted version line changed to single in built file"
+        );
+
+        like( $built, qr/1;\s+# last line/, "last line correct in single-quoted file" );
 
         ok(
             grep( {/adding \$VERSION assignment/} @{ $tzil->log_messages } ),
@@ -98,11 +114,22 @@ for my $c (@cases) {
 
         like(
             $orig,
-            _regex_for_version( next_version($version) ),
-            "version line updated in source file",
+            _regex_for_version( q['], next_version($version) ),
+            "version line updated in single-quoted source file",
         );
 
-        like( $orig, qr/1;\s+# last line/, "last line correct in built file" );
+        like( $orig, qr/1;\s+# last line/,
+            "last line correct in single-quoted source file" );
+
+        $orig = $tzil->slurp_file('source/lib/DZT/DQuote.pm');
+
+        like(
+            $orig,
+            _regex_for_version( q['], next_version($version) ),
+            "version line updated from double-quotes to single-quotes in source file",
+        );
+
+        like( $orig, qr/1;\s+# last line/, "last line correct in revised source file" );
 
     };
 }

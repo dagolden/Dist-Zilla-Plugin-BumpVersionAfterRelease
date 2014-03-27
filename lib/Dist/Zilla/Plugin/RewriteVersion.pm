@@ -18,7 +18,7 @@ use namespace::autoclean;
 use version ();
 
 my $assign_regex = qr{
-    our \s+ \$VERSION \s* = \s* '($version::LAX)' \s* ;
+    our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ;
 }x;
 
 sub provide_version {
@@ -30,7 +30,7 @@ sub provide_version {
     my $file    = $self->zilla->main_module;
     my $content = $file->content;
 
-    my ($version) = $content =~ m{^$assign_regex[^\n]*$}ms;
+    my ( $quote, $version ) = $content =~ m{^$assign_regex[^\n]*$}ms;
 
     return $version;
 }
@@ -111,7 +111,9 @@ relevant and/or affected and it must exactly match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 
-It must be at the start of a line and any trailing comments are deleted.
+It must be at the start of a line and any trailing comments are deleted.  The
+original may have double-quotes, but the re-written line will have single
+quotes.
 
 The very restrictive regular expression format is intentional to avoid
 the various ways finding a version assignment could go wrong and to avoid
