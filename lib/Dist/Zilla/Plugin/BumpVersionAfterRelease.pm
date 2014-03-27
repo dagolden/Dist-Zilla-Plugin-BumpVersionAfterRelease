@@ -174,7 +174,8 @@ how you might do that.
 
     ; commit source files after modification
     [Git::Commit / Commit_Changes] ; commit Changes (for new dev)
-
+    allow_dirty_match = ^lib/
+    commit_msg = Commit Changes and bump $VERSION
 
 =head1 SEE ALSO
 
