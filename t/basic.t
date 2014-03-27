@@ -8,19 +8,17 @@ use Test::Fatal;
 use Version::Next qw/next_version/;
 
 sub _new_tzil {
-    my $version = shift || "0.001";
-    my $tzil = Builder->from_config(
+    return Builder->from_config(
         { dist_root => 'corpus/DZT' },
         {
             add_files => {
                 'source/dist.ini' => simple_ini(
-                    { version => $version },
+                    { version => undef },
                     qw(GatherDir RewriteVersion FakeRelease BumpVersionAfterRelease)
                 ),
             },
         },
     );
-    return $tzil;
 }
 
 my @cases = (
@@ -29,13 +27,20 @@ my @cases = (
         version => "0.001",
     },
     {
-        label   => "simple rewrite",
-        version => "0.002",
+        label    => "simple rewrite",
+        version  => "0.002",
+        override => 1,
     },
     {
-        label   => "rewrite trial version",
-        version => "0.002",
+        label   => "identity trial version",
+        version => "0.001",
         trial   => 1,
+    },
+    {
+        label    => "rewrite trial version",
+        version  => "0.002",
+        override => 1,
+        trial    => 1,
     },
 );
 
@@ -51,7 +56,8 @@ for my $c (@cases) {
     my ( $label, $version ) = @{$c}{qw/label version/};
     subtest $label => sub {
         local $ENV{TRIAL} = $c->{trial};
-        my $tzil = _new_tzil($version);
+        local $ENV{V} = $version if $c->{override};
+        my $tzil = _new_tzil;
         $tzil->chrome->logger->set_debug(1);
 
         $tzil->build;

@@ -91,8 +91,6 @@ In your code, declare C<$VERSION> like this:
 
 In your F<dist.ini>:
 
-    [VersionFromModule]
-
     [RewriteVersion]
 
     [BumpVersionAfterRelease]
@@ -117,8 +115,7 @@ For most modules, this should work just fine.
 =head1 USAGE
 
 This L<Dist::Zilla> plugin, along with
-L<RewriteVersion|Dist::Zilla::Plugin::RewriteVersion>, and
-L<VersionFromModule|Dist::Zilla::Plugin::VersionFromModule> let you leave a
+L<RewriteVersion|Dist::Zilla::Plugin::RewriteVersion> let you leave a
 C<$VERSION> declaration in the code files in your repository but still let
 Dist::Zilla provide automated version management.
 
@@ -129,12 +126,15 @@ First, you include a very specific C<$VERSION> declaration in your code:
 It must be on a line by itself and should be the same in all your files.
 (If it is not, it will be overwritten anyway.)
 
-Using L<VersionFromModule|Dist::Zilla::Plugin::VersionFromModule> the version
-line from your main module will be used as the version for your release.
+L<RewriteVersion|Dist::Zilla::Plugin::RewriteVersion> is a version provider
+plugin, so the version line from your main module will be used as the version
+for your release.
 
-If you override the version — e.g. C<V=1.000 dzil build> — then
-L<RewriteVersion|Dist::Zilla::Plugin::RewriteVersion> will overwrite the
+If you override the version with the C<V> environment variable,
+then L<RewriteVersion|Dist::Zilla::Plugin::RewriteVersion> will overwrite the
 C<$VERSION> declaration in the gathered files.
+
+    V=1.000 dzil release
 
 Finally, after a successful release, this module
 L<BumpVersionAfterRelease|Dist::Zilla::Plugin::BumpVersionAfterRelease> will

@@ -3,18 +3,37 @@ use strict;
 use warnings;
 
 package Dist::Zilla::Plugin::RewriteVersion;
-# ABSTRACT: Rewrite version declarations to match the distribution version
+# ABSTRACT: Get and/or rewrite module versions to match distribution version
 # VERSION
 
 use Moose;
 with(
     'Dist::Zilla::Role::FileMunger' => { -version => 5 },
+    'Dist::Zilla::Role::VersionProvider',
     'Dist::Zilla::Role::FileFinderUser' =>
       { default_finders => [ ':InstallModules', ':ExecFiles' ], },
 );
 
 use namespace::autoclean;
 use version ();
+
+my $assign_regex = qr{
+    our \s+ \$VERSION \s* = \s* '($version::LAX)' \s* ;
+}x;
+
+sub provide_version {
+    my ($self) = @_;
+
+    # override (or maybe needed to initialize)
+    return $ENV{V} if exists $ENV{V};
+
+    my $file    = $self->zilla->main_module;
+    my $content = $file->content;
+
+    my ($version) = $content =~ m{^$assign_regex[^\n]*$}ms;
+
+    return $version;
+}
 
 sub munge_files {
     my $self = shift;
@@ -46,10 +65,6 @@ sub munge_file {
     return;
 }
 
-my $assign_regex = qr{
-    our \s+ \$VERSION \s* = \s* '$version::LAX' \s* ;
-}x;
-
 sub rewrite_version {
     my ( $self, $file, $version ) = @_;
 
@@ -70,7 +85,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=for Pod::Coverage munge_files munge_file rewrite_version
+=for Pod::Coverage munge_files munge_file rewrite_version provide_version
 
 =head1 SYNOPSIS
 
@@ -83,9 +98,16 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 DESCRIPTION
 
-This module munges an existing C<our $VERSION = '1.23'> declaration in your
-code to match the version of the distribution.  Only the B<first> occurrence is
-affected and it must exactly match this regular expression:
+This module is both a C<VersionProvider> and C<FileMunger>.
+
+This module finds a version in a specific format from the main module file and
+munges all gathered files to match.  You can override the version found with
+the C<V> environment variable, similar to
+L<Git::NextVersion|Dist::Zilla::Plugin::Git::NextVersion>, in which case all
+the gathered files have their C<$VERSION> set to that value.
+
+Only the B<first> occurrence of a C<$VERSION> declaration in each file is
+relevant and/or affected and it must exactly match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 
