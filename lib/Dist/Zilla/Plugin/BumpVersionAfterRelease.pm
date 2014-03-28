@@ -156,8 +156,6 @@ how you might do that.
 
     [@Basic]
 
-    [VersionFromModule]
-
     [RewriteVersion]
 
     ; commit source files as of "dzil release" with any
