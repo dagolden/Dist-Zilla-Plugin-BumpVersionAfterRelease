@@ -34,9 +34,20 @@ my $assign_regex = qr{
     our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ;
 }x;
 
+=attr skip_version_provider
+
+If true, rely on some other mechanism for determining the "current" version
+instead of extracting it from the C<main_module>. Defaults to false.
+
+This enables hard-coding C<version => in C<dist.ini> among other tricks.
+
+=cut
+
+has skip_version_provider => ( is => ro =>, lazy => 1, default => undef );
+
 sub provide_version {
     my ($self) = @_;
-
+    return if $self->skip_version_provider;
     # override (or maybe needed to initialize)
     return $ENV{V} if exists $ENV{V};
 
