@@ -16,16 +16,44 @@ with(
 use namespace::autoclean;
 use version ();
 
+=attr munge_makefile_pl
+
+If there is a F<Makefile.PL> in the root of the repository, its version will be
+set as well.  Defaults to true.
+
+=cut
+
+has munge_makefile_pl => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 1,
+);
+
+has _next_version => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_build__next_version',
+);
+
+sub _build__next_version {
+    my ($self) = @_;
+    require Version::Next;
+    my $version = $self->zilla->version;
+    $self->log_fatal("$version is not a valid version string")
+      unless version::is_lax($version);
+    return Version::Next::next_version($version);
+}
+
 sub after_release {
     my ($self) = @_;
     $self->munge_file($_) for @{ $self->found_files };
+    $self->rewrite_makefile_pl if -f "Makefile.PL" && $self->munge_makefile_pl;
     return;
 }
 
 sub munge_file {
     my ( $self, $file ) = @_;
-
-    require Version::Next;
 
     return if $file->is_bytes;
 
@@ -39,12 +67,7 @@ sub munge_file {
         return;
     }
 
-    my $version = $self->zilla->version;
-
-    $self->log_fatal("$version is not a valid version string")
-      unless version::is_lax($version);
-
-    if ( $self->rewrite_version( $file, Version::Next::next_version($version) ) ) {
+    if ( $self->rewrite_version( $file, $self->_next_version ) ) {
         $self->log_debug( [ 'bumped $VERSION in %s', $file->name ] );
     }
     else {
@@ -78,9 +101,28 @@ sub rewrite_version {
     return;
 }
 
+sub rewrite_makefile_pl {
+    my ($self) = @_;
+
+    my $next_version = $self->_next_version;
+
+    require Path::Tiny;
+
+    my $path = Path::Tiny::path("Makefile.PL");
+
+    my $content = $path->slurp_utf8;
+
+    if ( $content =~ s{"VERSION" => "[^"]+"}{"VERSION" => "$next_version"}ms ) {
+        $path->spew_utf8($content);
+        return 1;
+    }
+
+    return;
+}
+
 1;
 
-=for Pod::Coverage after_release munge_file rewrite_version
+=for Pod::Coverage after_release munge_file rewrite_makefile_pl rewrite_version
 
 =head1 SYNOPSIS
 
