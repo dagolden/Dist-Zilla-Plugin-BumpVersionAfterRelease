@@ -2,6 +2,8 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+0.004     2014-10-06 16:54:32-04:00 America/New_York
+
     [ADDED]
 
     - Added 'global' attribute to replace all occurances of the version
