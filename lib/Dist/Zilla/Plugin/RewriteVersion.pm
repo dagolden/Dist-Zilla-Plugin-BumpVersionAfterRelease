@@ -18,6 +18,18 @@ with(
 use namespace::autoclean;
 use version ();
 
+=attr global
+
+If true, all occurrences of the version pattern will be replaced.  Otherwise,
+only the first occurrence is replaced.  Defaults to false.
+
+=cut
+
+has global => (
+    is  => 'ro',
+    isa => 'Bool',
+);
+
 my $assign_regex = qr{
     our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ;
 }x;
@@ -74,7 +86,12 @@ sub rewrite_version {
     my $comment = $self->zilla->is_trial ? ' # TRIAL' : '';
     my $code = "our \$VERSION = '$version';$comment";
 
-    if ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms ) {
+    if (
+        $self->global
+        ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
+        : ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms )
+      )
+    {
         $file->content($content);
         return 1;
     }
@@ -108,7 +125,8 @@ L<Git::NextVersion|Dist::Zilla::Plugin::Git::NextVersion>, in which case all
 the gathered files have their C<$VERSION> set to that value.
 
 Only the B<first> occurrence of a C<$VERSION> declaration in each file is
-relevant and/or affected and it must exactly match this regular expression:
+relevant and/or affected (unless the L</global> attribute is set and it must
+exactly match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 

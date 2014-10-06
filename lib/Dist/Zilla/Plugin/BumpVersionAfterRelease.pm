@@ -17,6 +17,18 @@ with(
 use namespace::autoclean;
 use version ();
 
+=attr global
+
+If true, all occurrences of the version pattern will be replaced.  Otherwise,
+only the first occurrence is replaced.  Defaults to false.
+
+=cut
+
+has global => (
+    is  => 'ro',
+    isa => 'Bool',
+);
+
 =attr munge_makefile_pl
 
 If there is a F<Makefile.PL> in the root of the repository, its version will be
@@ -94,7 +106,12 @@ sub rewrite_version {
     my $comment = $self->zilla->is_trial ? ' # TRIAL' : '';
     my $code = "our \$VERSION = '$version';$comment";
 
-    if ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms ) {
+    if (
+        $self->global
+        ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
+        : ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms )
+      )
+    {
         Path::Tiny::path( $file->name )->spew( { binmode => $iolayer }, $content );
         return 1;
     }
@@ -143,7 +160,8 @@ In your F<dist.ini>:
 After a release, this module modifies your original source code to replace an
 existing C<our $VERSION = '1.23'> declaration with the next number after the
 released version as determined by L<Version::Next>.  Only the B<first>
-occurrence is affected and it must exactly match this regular expression:
+occurrence is affected (unless you set the L</global> attribute) and it must
+exactly match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 
