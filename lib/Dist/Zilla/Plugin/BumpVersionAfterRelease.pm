@@ -5,7 +5,7 @@ use warnings;
 package Dist::Zilla::Plugin::BumpVersionAfterRelease;
 # ABSTRACT: Bump module versions after distribution release
 
-our $VERSION = '0.006';
+our $VERSION = '0.007';
 
 use Moose;
 with(
