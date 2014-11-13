@@ -97,7 +97,7 @@ sub rewrite_version {
     my ( $self, $file, $version ) = @_;
 
     require Path::Tiny;
-    Path::Tiny->VERSION(0.060);
+    Path::Tiny->VERSION(0.061);
 
     my $iolayer = sprintf( ":raw:encoding(%s)", $file->encoding );
 
@@ -128,6 +128,7 @@ sub rewrite_makefile_pl {
     my $next_version = $self->_next_version;
 
     require Path::Tiny;
+    Path::Tiny->VERSION(0.061);
 
     my $path = Path::Tiny::path("Makefile.PL");
 
