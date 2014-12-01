@@ -209,6 +209,11 @@ overwrite the C<$VERSION> declaration in your B<source> files to be the B<next>
 version after the one you just released.  That version will then be the default
 one that will be used for the next release.
 
+You can configure which files have their C<$VERSION> declarations modified,
+with the C<finder> option. The default finders are C<:InstallModules> and
+C<:ExecFiles>; other predefined finders are listed in
+L<Dist::Zilla::Role::FileFinderUser/default_finders>.
+
 If you tag/commit after a release, you may want to tag and commit B<before>
 the source files are modified.  Here is a sample C<dist.ini> that shows
 how you might do that.
