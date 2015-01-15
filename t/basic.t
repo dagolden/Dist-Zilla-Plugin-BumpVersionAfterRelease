@@ -119,8 +119,8 @@ for my $c (@cases) {
         like( $dquote_bld, qr/1;\s+# last line/, "last line correct in double-quoted file" );
 
         ok(
-            grep( { /adding \$VERSION assignment/ } @{ $tzil->log_messages } ),
-            "we log adding a version",
+            grep( { /updating \$VERSION assignment/ } @{ $tzil->log_messages } ),
+            "we log updating a version",
         ) or diag join( "\n", @{ $tzil->log_messages } );
 
         my $makefilePL = $tzil->slurp_file('build/Makefile.PL');

@@ -81,7 +81,7 @@ sub munge_file {
       unless version::is_lax($version);
 
     if ( $self->rewrite_version( $file, $version ) ) {
-        $self->log_debug( [ 'adding $VERSION assignment to %s', $file->name ] );
+        $self->log_debug( [ 'updating $VERSION assignment in %s', $file->name ] );
     }
     else {
         $self->log( [ q[Skipping: no "our $VERSION = '...'" found in "%s"], $file->name ] );
