@@ -56,6 +56,7 @@ sub provide_version {
 
     my ( $quote, $version ) = $content =~ m{^$assign_regex[^\n]*$}ms;
 
+    $self->log_debug([ 'extracted version from main module: %s', $version ]) if $version;
     return $version;
 }
 
