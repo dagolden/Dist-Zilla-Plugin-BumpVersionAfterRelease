@@ -255,6 +255,7 @@ Here are some other plugins for managing C<$VERSION> in your distribution:
 * L<Dist::Zilla::Plugin::OverridePkgVersion>
 * L<Dist::Zilla::Plugin::SurgicalPkgVersion>
 * L<Dist::Zilla::Plugin::PkgVersionIfModuleWithPod>
+* L<Dist::Zilla::Plugin::RewriteVersion::Transitional>
 
 =cut
 

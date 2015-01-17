@@ -154,6 +154,11 @@ For most modules, this should work just fine.
 See L<BumpVersionAfterRelease|Dist::Zilla::Plugin::BumpVersionAfterRelease> for
 more details and usage examples.
 
+=head1 SEE ALSO
+
+=for :list
+* L<Dist::Zilla::Plugin::RewriteVersion::Transitional>
+
 =cut
 
 # vim: ts=4 sts=4 sw=4 et:
