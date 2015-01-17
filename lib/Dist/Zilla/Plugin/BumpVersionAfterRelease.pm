@@ -102,7 +102,7 @@ sub rewrite_version {
     my $iolayer = sprintf( ":raw:encoding(%s)", $file->encoding );
 
     # read source file
-    my $content = Path::Tiny::path( $file->name )->slurp( { binmode => $iolayer } );
+    my $content = Path::Tiny::path( $file->_original_name )->slurp( { binmode => $iolayer } );
 
     my $comment = $self->zilla->is_trial ? ' # TRIAL' : '';
     my $code = "our \$VERSION = '$version';$comment";
