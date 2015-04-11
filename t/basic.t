@@ -5,6 +5,7 @@ use utf8;
 
 use Test::DZil;
 use Test::Fatal;
+use Test::Deep;
 use Version::Next qw/next_version/;
 
 sub _new_tzil {
@@ -13,6 +14,7 @@ sub _new_tzil {
       [ GatherDir => { exclude_filename => ['Makefile.PL'] } ],
       'FakeRelease',
       'MakeMaker',
+      'MetaConfig',
       ($c->{global}
       ? (
         [ RewriteVersion => { global           => 1 } ],
@@ -169,6 +171,40 @@ for my $c (@cases) {
             "Makefile.PL version bumped"
         );
 
+        cmp_deeply(
+            $tzil->distmeta,
+            superhashof({
+                x_Dist_Zilla => superhashof({
+                    plugins => supersetof(
+                        {
+                            class => 'Dist::Zilla::Plugin::RewriteVersion',
+                            config => {
+                                 'Dist::Zilla::Plugin::RewriteVersion' => {
+                                     global => bool($c->{global}),
+                                     skip_version_provider => bool($c->{skip_version_provider}),
+                                     finders => [ ':ExecFiles', ':InstallModules' ],
+                                 },
+                            },
+                            name => 'RewriteVersion',
+                            version => Dist::Zilla::Plugin::RewriteVersion->VERSION,
+                        },
+                        {
+                            class => 'Dist::Zilla::Plugin::BumpVersionAfterRelease',
+                            config => {
+                                'Dist::Zilla::Plugin::BumpVersionAfterRelease' => {
+                                    global => bool($c->{global}),
+                                    munge_makefile_pl => bool(1),
+                                    finders => [ ':ExecFiles', ':InstallModules' ],
+                                },
+                            },
+                            name => 'BumpVersionAfterRelease',
+                            version => Dist::Zilla::Plugin::BumpVersionAfterRelease->VERSION,
+                        },
+                    ),
+                }),
+            }),
+            'plugin metadata, including dumped configs',
+        ) or diag 'got distmeta: ', explain $tzil->distmeta;
     };
 }
 

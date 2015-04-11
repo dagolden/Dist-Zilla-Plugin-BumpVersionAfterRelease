@@ -2,6 +2,10 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+    [ADDED]
+
+    - configurations are logged in metadata, when combined with [MetaConfig]
+
 0.010     2015-07-16 06:35:38-04:00 America/New_York (TRIAL RELEASE)
 
     [CHANGED]
