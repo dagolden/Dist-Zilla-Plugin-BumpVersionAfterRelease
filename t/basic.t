@@ -9,19 +9,18 @@ use Version::Next qw/next_version/;
 
 sub _new_tzil {
     my $c = shift;
-    my @plugins =
-      $c->{global}
+    my @plugins = (
+      [ GatherDir => { exclude_filename => ['Makefile.PL'] } ],
+      'FakeRelease',
+      'MakeMaker',
+      ($c->{global}
       ? (
-        [ GatherDir      => { exclude_filename => ['Makefile.PL'] } ],
         [ RewriteVersion => { global           => 1 } ],
-        'FakeRelease',
         [ BumpVersionAfterRelease => { global => 1 } ],
-        'MakeMaker'
       )
       : (
-        [ GatherDir => { exclude_filename => ['Makefile.PL'] } ],
-        qw(RewriteVersion FakeRelease BumpVersionAfterRelease MakeMaker)
-      );
+        qw(RewriteVersion BumpVersionAfterRelease)
+      )));
 
     return Builder->from_config(
         { dist_root => 'corpus/DZT' },
