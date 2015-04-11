@@ -45,6 +45,19 @@ This enables hard-coding C<version => in C<dist.ini> among other tricks.
 
 has skip_version_provider => ( is => ro =>, lazy => 1, default => undef );
 
+around dump_config => sub
+{
+    my ($orig, $self) = @_;
+    my $config = $self->$orig;
+
+    $config->{+__PACKAGE__} = {
+        finders => [ sort @{ $self->finder } ],
+        (map { $_ => $self->$_ ? 1 : 0 } qw(global skip_version_provider)),
+    };
+
+    return $config;
+};
+
 sub provide_version {
     my ($self) = @_;
     return if $self->skip_version_provider;

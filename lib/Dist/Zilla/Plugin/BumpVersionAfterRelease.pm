@@ -58,6 +58,19 @@ sub _build__next_version {
     return Version::Next::next_version($version);
 }
 
+around dump_config => sub
+{
+    my ($orig, $self) = @_;
+    my $config = $self->$orig;
+
+    $config->{+__PACKAGE__} = {
+        finders => [ sort @{ $self->finder } ],
+        (map { $_ => $self->$_ ? 1 : 0 } qw(global munge_makefile_pl)),
+    };
+
+    return $config;
+};
+
 sub after_release {
     my ($self) = @_;
     $self->munge_file($_) for @{ $self->found_files };

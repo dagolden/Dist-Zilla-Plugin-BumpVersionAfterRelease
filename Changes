@@ -6,6 +6,10 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
     - removed addition of # TRIAL suffix to the repository files after release
 
+    [ADDED]
+
+    - configurations are logged in metadata, when combined with [MetaConfig]
+
 0.009     2015-01-27 06:47:35-05:00 America/New_York
 
     [CHANGED]
