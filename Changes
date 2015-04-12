@@ -6,6 +6,11 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
     - configurations are logged in metadata, when combined with [MetaConfig]
 
+    [CHANGED]
+
+    - when a $VERSION is updated after release, the correct filename is
+      included in the log message, if it was changed
+
 0.010     2015-07-16 06:35:38-04:00 America/New_York (TRIAL RELEASE)
 
     [CHANGED]
