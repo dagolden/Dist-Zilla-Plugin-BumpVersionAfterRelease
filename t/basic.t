@@ -6,6 +6,7 @@ use utf8;
 use Test::DZil;
 use Test::Fatal;
 use Test::Deep;
+use Path::Tiny;
 use Version::Next qw/next_version/;
 
 sub _new_tzil {
@@ -205,6 +206,15 @@ for my $c (@cases) {
             }),
             'plugin metadata, including dumped configs',
         ) or diag 'got distmeta: ', explain $tzil->distmeta;
+
+        cmp_deeply(
+            $tzil->log_messages,
+            superbagof(
+                '[RewriteVersion] updating $VERSION assignment in lib/DZT/Sample.pm',
+                '[BumpVersionAfterRelease] bumped $VERSION in ' . path($tzil->tempdir, qw(source lib DZT Sample.pm)),
+            ),
+            'got appropriate log messages about updating both $VERSION statements, in both locations',
+        );
     };
 }
 

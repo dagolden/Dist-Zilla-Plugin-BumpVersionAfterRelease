@@ -94,7 +94,7 @@ sub munge_file {
     }
 
     if ( $self->rewrite_version( $file, $self->_next_version ) ) {
-        $self->log_debug( [ 'bumped $VERSION in %s', $file->name ] );
+        $self->log_debug( [ 'bumped $VERSION in %s', $file->_original_name ] );
     }
     else {
         $self->log( [ q[Skipping: no "our $VERSION = '...'" found in "%s"], $file->name ] );
