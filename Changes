@@ -2,6 +2,10 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+    [CHANGED]
+
+    - removed addition of # TRIAL suffix to the repository files after release
+
 0.009     2015-01-27 06:47:35-05:00 America/New_York
 
     [CHANGED]
