@@ -104,8 +104,7 @@ sub rewrite_version {
     # read source file
     my $content = Path::Tiny::path( $file->_original_name )->slurp( { binmode => $iolayer } );
 
-    my $comment = $self->zilla->is_trial ? ' # TRIAL' : '';
-    my $code = "our \$VERSION = '$version';$comment";
+    my $code = "our \$VERSION = '$version';";
 
     if (
         $self->global
