@@ -90,7 +90,8 @@ sub munge_file {
 }
 
 my $assign_regex = qr{
-    our \s+ \$VERSION \s* = \s* (['"])$version::LAX\1 \s* ;
+    our \s+ \$VERSION \s* = \s* (['"])$version::LAX\1 \s* ; (?:\s* \# \s TRIAL)? \N*
+    (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
 }x;
 
 sub rewrite_version {
@@ -105,6 +106,7 @@ sub rewrite_version {
     my $content = Path::Tiny::path( $file->_original_name )->slurp( { binmode => $iolayer } );
 
     my $code = "our \$VERSION = '$version';";
+    $code .= "\n\$VERSION = eval \$VERSION;" if $version =~ /_/ and scalar($version =~ /\./g) <= 1;
 
     if (
         $self->global
