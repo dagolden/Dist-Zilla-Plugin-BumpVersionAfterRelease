@@ -106,7 +106,8 @@ sub rewrite_version {
     my $content = Path::Tiny::path( $file->_original_name )->slurp( { binmode => $iolayer } );
 
     my $code = "our \$VERSION = '$version';";
-    $code .= "\n\$VERSION = eval \$VERSION;" if $version =~ /_/ and scalar($version =~ /\./g) <= 1;
+    (my $clean_version = $version) =~ tr/_//;
+    $code .= "\n\$VERSION = '$clean_version';" if $version ne $clean_version;
 
     if (
         $self->global

@@ -98,7 +98,8 @@ sub rewrite_version {
 
     my $code = "our \$VERSION = '$version';";
     $code .= " # TRIAL" if $self->zilla->is_trial;
-    $code .= "\n\$VERSION = eval \$VERSION;" if $version =~ /_/ and scalar($version =~ /\./g) <= 1;
+    (my $clean_version = $version) =~ tr/_//;
+    $code .= "\n\$VERSION = '$clean_version';" if $version ne $clean_version;
 
     if (
         $self->global
