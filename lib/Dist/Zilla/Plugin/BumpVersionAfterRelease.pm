@@ -14,8 +14,21 @@ with(
       { default_finders => [ ':InstallModules', ':ExecFiles' ], },
 );
 
+use Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util;
 use namespace::autoclean;
 use version ();
+
+=attr allow_decimal_underscore
+
+Allows use of decimal versions with underscores.  Default is false.  (Version
+tuples with underscores are never allowed!)
+
+=cut
+
+has allow_decimal_underscore => (
+    is  => 'ro',
+    isa => 'Bool',
+);
 
 =attr global
 
@@ -43,18 +56,24 @@ has munge_makefile_pl => (
 );
 
 has _next_version => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    builder => '_build__next_version',
+    is       => 'ro',
+    isa      => 'Str',
+    lazy     => 1,
+    init_arg => undef,
+    builder  => '_build__next_version',
 );
 
 sub _build__next_version {
     my ($self) = @_;
     require Version::Next;
     my $version = $self->zilla->version;
-    $self->log_fatal("$version is not a valid version string")
-      unless version::is_lax($version);
+
+    $self->log_fatal(
+        "$version is not a valid version string (maybe you need 'allow_decimal_underscore')")
+      unless $self->allow_decimal_underscore
+      ? is_loose_version($version)
+      : is_strict_version($version);
+
     return Version::Next::next_version($version);
 }
 
@@ -89,10 +108,7 @@ sub munge_file {
     return;
 }
 
-my $assign_regex = qr{
-    our \s+ \$VERSION \s* = \s* (['"])$version::LAX\1 \s* ; (?:\s* \# \s TRIAL)? [^\n]*
-    (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
-}x;
+my $assign_regex = assign_re();
 
 sub rewrite_version {
     my ( $self, $file, $version ) = @_;
@@ -181,6 +197,60 @@ the various ways finding a version assignment could go wrong and to avoid
 using L<PPI>, which has similar complexity issues.
 
 For most modules, this should work just fine.
+
+=head2 Using underscore in decimal $VERSION
+
+By default, versions must meet the 'strict' criteria from
+L<version|version.pm>, which does not allow the use of underscores.
+
+If the C<allow_decimal_underscore> options is set to true, you may
+use underscores in decimal versions.  In this case, the following line will
+be added after the C<$VERSION> assignment to ensure the underscore is
+removed at runtime:
+
+    $VERSION = eval $VERSION;
+
+Despite their long history on CPAN, the author does not recommend the use
+of decimal versions with Dist::Zilla, as Dist::Zilla supports generating
+tarballs with a "-TRIAL" part of the name as well as putting a
+C<release_status> in META.json – both of which prevent PAUSE from indexing
+a distribution.
+
+Plus, since this plugin also adds the '# TRIAL' comment on the version
+line, it's obvious in the source that the module is a dev release.  With
+both source and tarball obviously marked "TRIAL", most of the historical
+need for underscore in a version is taken care of.
+
+Using decimal underscores (with the "eval" hack ) introduces a subtle
+difference between what the CPAN toolchain thinks the version is (and what
+is in META) and what Perl thinks the version is at runtime.  Consider:
+
+    Foo->VERSION eq MM->parse_version( $INC{"Foo.pm"} )
+
+This would be false for the version "1.002_003" with
+C<$VERSION = eval $VERSION>.
+
+On the other hand, B<not> using C<eval $VERSION> leads to even worse
+problems trying to specify a version number with C<use>:
+
+    # given $Foo::VERSION = "1.002_003"
+
+    use Foo 1.002_003; # fails!
+
+Underscore versions were a useful hack, but now it's time to move on and
+leave them behind.  But, if you really insist on carrying a loaded gun
+pointed at your foot, the C<allow_decimal_underscore> option will let you.
+
+=head2 Using underscore in tuple $VERSION
+
+Yes, Perl allows this: C<v1.2.3_4>.  And even this: C<1.2.3_4>.  And
+this: C<v1.2_3>.  Or any of those in quotes.  (Maybe)
+
+But what happens is a random function of your version of Perl, your
+version of L<version.pm|version>, and your version of the CPAN toolchain.
+
+So you really shouldn't use underscores in version tuples, and this module
+won't let you.
 
 =head1 USAGE
 

@@ -15,8 +15,21 @@ with(
       { default_finders => [ ':InstallModules', ':ExecFiles' ], },
 );
 
+use Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util;
 use namespace::autoclean;
 use version ();
+
+=attr allow_decimal_underscore
+
+Allows use of decimal versions with underscores.  Default is false.  (Version
+tuples with underscores are never allowed!)
+
+=cut
+
+has allow_decimal_underscore => (
+    is  => 'ro',
+    isa => 'Bool',
+);
 
 =attr global
 
@@ -30,10 +43,7 @@ has global => (
     isa => 'Bool',
 );
 
-my $assign_regex = qr{
-    our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ; (?:\s* \# \s TRIAL)? [^\n]*
-    (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
-}x;
+my $assign_regex = assign_re();
 
 =attr skip_version_provider
 
@@ -80,8 +90,11 @@ sub munge_file {
 
     my $version = $self->zilla->version;
 
-    $self->log_fatal("$version is not a valid version string")
-      unless version::is_lax($version);
+    $self->log_fatal(
+        "$version is not a valid version string (maybe you need 'allow_decimal_underscore')")
+      unless $self->allow_decimal_underscore
+      ? is_loose_version($version)
+      : is_strict_version($version);
 
     if ( $self->rewrite_version( $file, $version ) ) {
         $self->log_debug( [ 'updating $VERSION assignment in %s', $file->name ] );
