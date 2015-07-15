@@ -120,19 +120,19 @@ subtest "with allow_decimal_underscore" => sub {
 
     is(
         path( $tzil->tempdir, qw(build lib Foo.pm) )->slurp_utf8,
-        "package Foo;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+        "package Foo;\n\nour \$VERSION = '0.004_002'; # TRIAL from DZT-Sample-0.004_002-TRIAL.tar.gz\n\$VERSION = eval \$VERSION;\n\n1;\n",
         'TRIAL comment and eval line are added',
     );
 
     is(
         path( $tzil->tempdir, qw(build lib Foo Bar.pm) )->slurp_utf8,
-        "package Foo::Bar;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+        "package Foo::Bar;\n\nour \$VERSION = '0.004_002'; # TRIAL from DZT-Sample-0.004_002-TRIAL.tar.gz\n\$VERSION = eval \$VERSION;\n\n1;\n",
         'TRIAL comment is added; eval line is retained',
     );
 
     is(
         path( $tzil->tempdir, qw(build lib Foo Baz.pm) )->slurp_utf8,
-        "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+        "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL from DZT-Sample-0.004_002-TRIAL.tar.gz\n\$VERSION = eval \$VERSION;\n\n1;\n",
         'TRIAL comment and eval line are retained',
     );
 

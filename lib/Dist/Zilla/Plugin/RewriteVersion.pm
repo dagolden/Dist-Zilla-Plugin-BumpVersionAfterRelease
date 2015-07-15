@@ -109,9 +109,16 @@ sub rewrite_version {
     my ( $self, $file, $version ) = @_;
 
     my $content = $file->content;
+    my $tarball = $self->zilla->archive_filename;
 
     my $code = "our \$VERSION = '$version';";
-    $code .= " # TRIAL" if $self->zilla->is_trial;
+    if ( $self->zilla->is_trial ) {
+        $code .= " # TRIAL from $tarball";
+    }
+    else {
+        $code .= " # from $tarball";
+    }
+
     $code .= "\n\$VERSION = eval \$VERSION;"
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
@@ -168,6 +175,14 @@ the various ways finding a version assignment could go wrong and to avoid
 using L<PPI>, which has similar complexity issues.
 
 For most modules, this should work just fine.
+
+When the version is written, it will append a comment with the name of
+the tarball it comes from.  This helps users track down the source of a
+module if its name doesn't match the tarball name.  If the module is
+a TRIAL release, that is also in the comment.  For example:
+
+    our $VERSION = '0.010'; # from Foo-Bar-0.010.tar.gz
+    our $VERSION = '0.011'; # TRIAL from Foo-Bar-0.011-TRIAL.tar.gz
 
 See L<BumpVersionAfterRelease|Dist::Zilla::Plugin::BumpVersionAfterRelease> for
 more details and usage examples.

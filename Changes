@@ -8,7 +8,11 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
       'allow_decimal_underscore' option is set to true.
 
     - The # TRIAL suffix is no longer added to repository files when
-      bumping the version after release
+      bumping the version after release.
+
+    - The tarball name is added as a comment to files munged during
+      build so the source is more evident (in case the module name
+      bears no relation to the tarball name).
 
     [FIXED]
 
