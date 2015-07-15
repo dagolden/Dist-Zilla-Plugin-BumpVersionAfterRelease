@@ -31,8 +31,8 @@ my $tzil = Builder->from_config(
                 [ BumpVersionAfterRelease => ],
             ),
             path(qw(source lib Foo.pm)) => "package Foo;\n\nour \$VERSION = '0.004_002';\n\n1;\n",
-            path(qw(source lib Foo Bar.pm)) => "package Foo::Bar;\n\nour \$VERSION = '0.004_002';\n\$VERSION = eval \$VERSION;\n\n1;\n",
-            path(qw(source lib Foo Baz.pm)) => "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+            path(qw(source lib Foo Bar.pm)) => "package Foo::Bar;\n\nour \$VERSION = '0.004_002';\n\$VERSION = '0.004002';\n\n1;\n",
+            path(qw(source lib Foo Baz.pm)) => "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = '0.004002';\n\n1;\n",
         },
     },
 );
@@ -52,38 +52,38 @@ is(
 
 is(
     path($tzil->tempdir, qw(build lib Foo.pm))->slurp_utf8,
-    "package Foo;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
-    'TRIAL comment and eval line are added',
+    "package Foo;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = '0.004002';\n\n1;\n",
+    'TRIAL comment and second assignment are added',
 );
 
 is(
     path($tzil->tempdir, qw(build lib Foo Bar.pm))->slurp_utf8,
-    "package Foo::Bar;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
-    'TRIAL comment is added; eval line is retained',
+    "package Foo::Bar;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = '0.004002';\n\n1;\n",
+    'TRIAL comment is added; second assignment is retained',
 );
 
 is(
     path($tzil->tempdir, qw(build lib Foo Baz.pm))->slurp_utf8,
-    "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
-    'TRIAL comment and eval line are retained',
+    "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = '0.004002';\n\n1;\n",
+    'TRIAL comment and second assignment are retained',
 );
 
 is(
     path($tzil->tempdir, qw(source lib Foo.pm))->slurp_utf8,
-    "package Foo;\n\nour \$VERSION = '0.004_003';\n\$VERSION = eval \$VERSION;\n\n1;\n",
-    '.pm contents in source saw the underscore version incremented, and eval added',
+    "package Foo;\n\nour \$VERSION = '0.004_003';\n\$VERSION = '0.004003';\n\n1;\n",
+    '.pm contents in source saw the underscore version incremented, and second assignment added',
 );
 
 is(
     path($tzil->tempdir, qw(source lib Foo Bar.pm))->slurp_utf8,
-    "package Foo::Bar;\n\nour \$VERSION = '0.004_003';\n\$VERSION = eval \$VERSION;\n\n1;\n",
-    '.pm contents in source saw the underscore version incremented and eval retained',
+    "package Foo::Bar;\n\nour \$VERSION = '0.004_003';\n\$VERSION = '0.004003';\n\n1;\n",
+    '.pm contents in source saw the underscore version incremented and second assignment retained',
 );
 
 is(
     path($tzil->tempdir, qw(source lib Foo Baz.pm))->slurp_utf8,
-    "package Foo::Baz;\n\nour \$VERSION = '0.004_003';\n\$VERSION = eval \$VERSION;\n\n1;\n",
-    '.pm contents in source saw the underscore version incremented, TRIAL comment removed and eval retained',
+    "package Foo::Baz;\n\nour \$VERSION = '0.004_003';\n\$VERSION = '0.004003';\n\n1;\n",
+    '.pm contents in source saw the underscore version incremented, TRIAL comment removed and second assignment retained',
 );
 
 diag 'got log messages: ', explain $tzil->log_messages
