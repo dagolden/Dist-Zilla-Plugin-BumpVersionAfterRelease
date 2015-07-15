@@ -140,6 +140,7 @@ for my $c (@cases) {
 
         my $orig = $tzil->slurp_file('source/lib/DZT/Sample.pm');
         my $next_re = _regex_for_version( q['], next_version($version) );
+        $next_re = qr/$next_re$/m;
 
         like( $orig, $next_re, "version line updated in single-quoted source file" );
 
@@ -155,7 +156,7 @@ for my $c (@cases) {
 
         like(
             $orig,
-            _regex_for_version( q['], next_version($version) ),
+            $next_re,
             "version line updated from double-quotes to single-quotes in source file",
         );
 

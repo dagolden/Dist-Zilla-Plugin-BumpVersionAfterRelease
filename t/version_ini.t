@@ -24,6 +24,7 @@ sub _new_tzil {
 # V=0.01 dzil test
 delete $ENV{TRIAL};
 delete $ENV{V};
+delete $ENV{RELEASE_STATUS};
 
 sub _regex_for_version {
     my ( $q, $version, $trailing ) = @_;

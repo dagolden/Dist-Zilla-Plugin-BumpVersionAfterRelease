@@ -42,6 +42,7 @@ sub _new_tzil {
 # V=0.01 dzil test
 delete $ENV{TRIAL};
 delete $ENV{V};
+delete $ENV{RELEASE_STATUS};
 
 my $tzil = _new_tzil;
 $tzil->chrome->logger->set_debug(1);
