@@ -4,8 +4,15 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
     [CHANGED]
 
-    - removed addition of # TRIAL suffix to the repository files after release
-    - add "$VERSION = eval $VERSION" when version contains an underscore
+    - Decimal versions with underscore are prohibited unless the
+      'allow_decimal_underscore' option is set to true.
+
+    - The # TRIAL suffix is no longer added to repository files when
+      bumping the version after release
+
+    [FIXED]
+
+    - Adds "$VERSION = eval $VERSION" when version contains an underscore
 
 0.009     2015-01-27 06:47:35-05:00 America/New_York
 
