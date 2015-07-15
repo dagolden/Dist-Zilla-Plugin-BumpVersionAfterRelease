@@ -211,8 +211,8 @@ removed at runtime:
     $VERSION = eval $VERSION;
 
 Despite their long history on CPAN, the author does not recommend the use
-of decimal versions with Dist::Zilla, as Dist::Zilla supports generating
-tarballs with a "-TRIAL" part of the name as well as putting a
+of decimal underscore versions with Dist::Zilla, as Dist::Zilla supports
+generating tarballs with a "-TRIAL" part of the name as well as putting a
 C<release_status> in META.json – both of which prevent PAUSE from indexing
 a distribution.
 
