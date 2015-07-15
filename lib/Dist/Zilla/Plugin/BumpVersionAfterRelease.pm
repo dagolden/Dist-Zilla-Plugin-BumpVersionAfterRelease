@@ -103,10 +103,12 @@ sub rewrite_version {
     my $iolayer = sprintf( ":raw:encoding(%s)", $file->encoding );
 
     # read source file
-    my $content = Path::Tiny::path( $file->_original_name )->slurp( { binmode => $iolayer } );
+    my $content =
+      Path::Tiny::path( $file->_original_name )->slurp( { binmode => $iolayer } );
 
     my $code = "our \$VERSION = '$version';";
-    $code .= "\n\$VERSION = eval \$VERSION;" if $version =~ /_/ and scalar($version =~ /\./g) <= 1;
+    $code .= "\n\$VERSION = eval \$VERSION;"
+      if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
     if (
         $self->global

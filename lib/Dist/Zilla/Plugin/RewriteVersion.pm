@@ -57,7 +57,8 @@ sub provide_version {
 
     my ( $quote, $version ) = $content =~ m{^$assign_regex[^\n]*$}ms;
 
-    $self->log_debug([ 'extracted version from main module: %s', $version ]) if $version;
+    $self->log_debug( [ 'extracted version from main module: %s', $version ] )
+      if $version;
     return $version;
 }
 
@@ -98,7 +99,8 @@ sub rewrite_version {
 
     my $code = "our \$VERSION = '$version';";
     $code .= " # TRIAL" if $self->zilla->is_trial;
-    $code .= "\n\$VERSION = eval \$VERSION;" if $version =~ /_/ and scalar($version =~ /\./g) <= 1;
+    $code .= "\n\$VERSION = eval \$VERSION;"
+      if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
     if (
         $self->global
