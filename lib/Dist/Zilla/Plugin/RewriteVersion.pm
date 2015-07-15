@@ -31,7 +31,8 @@ has global => (
 );
 
 my $assign_regex = qr{
-    our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ;
+    our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ; (?:\s* \# \s TRIAL)? \N*
+    (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
 }x;
 
 =attr skip_version_provider
@@ -95,8 +96,10 @@ sub rewrite_version {
 
     my $content = $file->content;
 
-    my $comment = $self->zilla->is_trial ? ' # TRIAL' : '';
-    my $code = "our \$VERSION = '$version';$comment";
+    my $code = "our \$VERSION = '$version';";
+    $code .= " # TRIAL" if $self->zilla->is_trial;
+    (my $clean_version = $version) =~ tr/_//;
+    $code .= "\n\$VERSION = '$clean_version';" if $version ne $clean_version;
 
     if (
         $self->global
