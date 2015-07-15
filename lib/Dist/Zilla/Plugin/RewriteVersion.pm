@@ -31,7 +31,7 @@ has global => (
 );
 
 my $assign_regex = qr{
-    our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ; (?:\s* \# \s TRIAL)? \N*
+    our \s+ \$VERSION \s* = \s* (['"])($version::LAX)\1 \s* ; (?:\s* \# \s TRIAL)? [^\n]*
     (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
 }x;
 
