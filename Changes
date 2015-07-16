@@ -2,6 +2,8 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+0.010     2015-07-16 06:35:38-04:00 America/New_York (TRIAL RELEASE)
+
     [CHANGED]
 
     - Decimal versions with underscore are prohibited unless the
