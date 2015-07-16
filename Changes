@@ -29,6 +29,15 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
     - Adds "$VERSION = eval $VERSION" when version contains an underscore
 
+    [ADDED]
+
+    - configurations are logged in metadata, when combined with [MetaConfig]
+
+    [CHANGED]
+
+    - when a $VERSION is updated after release, the correct filename is
+      included in the log message, if it was changed
+
 0.009     2015-01-27 06:47:35-05:00 America/New_York
 
     [CHANGED]
