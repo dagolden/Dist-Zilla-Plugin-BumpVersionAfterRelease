@@ -52,4 +52,8 @@ sub assign_re {
 
 1;
 
+=for Pod::Coverage is_strict_version is_loose_version assign_re
+
+=cut
+
 # vim: set ts=4 sts=4 sw=4 et tw=75:
