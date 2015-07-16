@@ -198,60 +198,6 @@ using L<PPI>, which has similar complexity issues.
 
 For most modules, this should work just fine.
 
-=head2 Using underscore in decimal $VERSION
-
-By default, versions must meet the 'strict' criteria from
-L<version|version.pm>, which does not allow the use of underscores.
-
-If the C<allow_decimal_underscore> options is set to true, you may
-use underscores in decimal versions.  In this case, the following line will
-be added after the C<$VERSION> assignment to ensure the underscore is
-removed at runtime:
-
-    $VERSION = eval $VERSION;
-
-Despite their long history on CPAN, the author does not recommend the use
-of decimal underscore versions with Dist::Zilla, as Dist::Zilla supports
-generating tarballs with a "-TRIAL" part of the name as well as putting a
-C<release_status> in META.json – both of which prevent PAUSE from indexing
-a distribution.
-
-Plus, since this plugin also adds the '# TRIAL' comment on the version
-line, it's obvious in the source that the module is a dev release.  With
-both source and tarball obviously marked "TRIAL", most of the historical
-need for underscore in a version is taken care of.
-
-Using decimal underscores (with the "eval" hack ) introduces a subtle
-difference between what the CPAN toolchain thinks the version is (and what
-is in META) and what Perl thinks the version is at runtime.  Consider:
-
-    Foo->VERSION eq MM->parse_version( $INC{"Foo.pm"} )
-
-This would be false for the version "1.002_003" with
-C<$VERSION = eval $VERSION>.
-
-On the other hand, B<not> using C<eval $VERSION> leads to even worse
-problems trying to specify a version number with C<use>:
-
-    # given $Foo::VERSION = "1.002_003"
-
-    use Foo 1.002_003; # fails!
-
-Underscore versions were a useful hack, but now it's time to move on and
-leave them behind.  But, if you really insist on carrying a loaded gun
-pointed at your foot, the C<allow_decimal_underscore> option will let you.
-
-=head2 Using underscore in tuple $VERSION
-
-Yes, Perl allows this: C<v1.2.3_4>.  And even this: C<1.2.3_4>.  And
-this: C<v1.2_3>.  Or any of those in quotes.  (Maybe)
-
-But what happens is a random function of your version of Perl, your
-version of L<version.pm|version>, and your version of the CPAN toolchain.
-
-So you really shouldn't use underscores in version tuples, and this module
-won't let you.
-
 =head1 USAGE
 
 This L<Dist::Zilla> plugin, along with
@@ -317,6 +263,64 @@ how you might do that.
     [Git::Commit / Commit_Changes] ; commit Changes (for new dev)
     allow_dirty_match = ^lib/
     commit_msg = Commit Changes and bump $VERSION
+
+=head2 Using underscore in decimal $VERSION
+
+By default, versions must meet the 'strict' criteria from
+L<version|version.pm>, which does not allow the use of underscores.
+
+If the C<allow_decimal_underscore> options is set to true, you may
+use underscores in decimal versions.  In this case, the following line will
+be added after the C<$VERSION> assignment to ensure the underscore is
+removed at runtime:
+
+    $VERSION = eval $VERSION;
+
+Despite their long history on CPAN, the author does not recommend the use
+of decimal underscore versions with Dist::Zilla, as Dist::Zilla supports
+generating tarballs with a "-TRIAL" part of the name as well as putting a
+C<release_status> in META.json – both of which prevent PAUSE from indexing
+a distribution.
+
+Plus, since this plugin also adds the '# TRIAL' comment on the version
+line, it's obvious in the source that the module is a development release.
+With both source and tarball obviously marked "TRIAL", most of the
+historical need for underscore in a version is taken care of.
+
+Using decimal underscores (with the "eval" hack ) introduces a subtle
+difference between what the C<< MM->parse_version >> thinks the version is
+(and what is in META) and what Perl thinks the version is at runtime.
+
+    Foo->VERSION eq MM->parse_version( $INC{"Foo.pm"} )
+
+This would be false for the version "1.002_003" with
+C<$VERSION = eval $VERSION>.  Much of the toolchain has heuristics to
+deal with this, but it may be an issue depending on exactly what
+version of toolchain modules you have installed.  You can avoid all of
+it by just not using underscores.
+
+On the other hand, using underscores and B<not> using C<eval $VERSION>
+leads to even worse problems trying to specify a version number with
+C<use>:
+
+    # given $Foo::VERSION = "1.002_003"
+
+    use Foo 1.002_003; # fails!
+
+Underscore versions were a useful hack, but now it's time to move on and
+leave them behind.  But, if you really insist on underscores, the
+C<allow_decimal_underscore> option will let you.
+
+=head2 Using underscore in tuple $VERSION
+
+Yes, Perl allows this: C<v1.2.3_4>.  And even this: C<1.2.3_4>.  And
+this: C<v1.2_3>.  Or any of those in quotes.  (Maybe)
+
+But what happens is a random function of your version of Perl, your
+version of L<version.pm|version>, and your version of the CPAN toolchain.
+
+So you really shouldn't use underscores in version tuples, and this module
+won't let you.
 
 =head1 SEE ALSO
 
