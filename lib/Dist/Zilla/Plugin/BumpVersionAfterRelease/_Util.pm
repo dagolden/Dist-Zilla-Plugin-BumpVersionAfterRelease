@@ -4,7 +4,7 @@ use warnings;
 
 package Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util;
 
-our $VERSION = '0.011'; # TRIAL
+our $VERSION = '0.012';
 
 use base 'Exporter';
 our @EXPORT = qw( is_strict_version is_loose_version assign_re );
