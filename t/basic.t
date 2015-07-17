@@ -16,14 +16,15 @@ sub _new_tzil {
       'FakeRelease',
       'MakeMaker',
       'MetaConfig',
-      ($c->{global}
-      ? (
-        [ RewriteVersion => { global           => 1 } ],
-        [ BumpVersionAfterRelease => { global => 1 } ],
-      )
-      : (
-        qw(RewriteVersion BumpVersionAfterRelease)
-      )));
+       [ RewriteVersion => {
+              $c->{global} ? ( global => 1 ) : (),
+              $c->{add_tarball_name} ? ( add_tarball_name => 1 ) : (),
+         } ],
+       [ BumpVersionAfterRelease => {
+              $c->{global} ? ( global => 1 ) : (),
+              $c->{add_tarball_name} ? ( add_tarball_name => 1 ) : (),
+         } ],
+    );
 
     return Builder->from_config(
         { dist_root => 'corpus/DZT' },
@@ -61,6 +62,12 @@ my @cases = (
         trial    => 1,
         global   => 1,
     },
+    {
+        label    => "simple rewrite, add_tarball_name",
+        version  => "0.005",
+        override => 1,
+        add_tarball_name => 1,
+    },
 );
 
 sub _regex_for_version {
@@ -89,20 +96,23 @@ for my $c (@cases) {
         pass("dzil build");
 
         my $sample_src = $tzil->slurp_file('source/lib/DZT/Sample.pm');
-        my $sample_bld = $tzil->slurp_file('build/lib/DZT/Sample.pm');
-        my $sample_re  = _regex_for_version( q['], $version, $c->{trial} ? "# TRIAL" : "" );
-        my $dquote_bld = $tzil->slurp_file('build/lib/DZT/DQuote.pm');
-
         like(
             $sample_src,
             _regex_for_version( q['], '0.001', "# comment" ),
             "single-quoted version line correct in source file",
         );
 
+        my $sample_bld = $tzil->slurp_file('build/lib/DZT/Sample.pm');
+        my $sample_re  = _regex_for_version( q['], $version,
+            $c->{trial} || $c->{add_tarball_name}
+            ? '# ' . ($c->{trial} ? "TRIAL" : '')
+                   . ($c->{add_tarball_name} ? "from DZT-Sample-$version.tar.gz" : '')
+            : '' );
+
         like( $sample_bld, $sample_re, "single-quoted version line correct in built file" );
 
         my $count =()= $sample_bld =~ /$sample_re/mg;
-        my $exp = $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ? 2 : 1;
+        my $exp = !$c->{add_tarball_name} && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
         is( $count, $exp, "right number of replacements" )
           or diag $sample_bld;
 
@@ -112,6 +122,7 @@ for my $c (@cases) {
             "double-quoted version line correct in source file",
         );
 
+        my $dquote_bld = $tzil->slurp_file('build/lib/DZT/DQuote.pm');
         like(
             $dquote_bld,
             _regex_for_version( q['], $version, $c->{trial} ? "# TRIAL" : "" ),
@@ -183,6 +194,7 @@ for my $c (@cases) {
                                  'Dist::Zilla::Plugin::RewriteVersion' => {
                                      global => bool($c->{global}),
                                      skip_version_provider => bool($c->{skip_version_provider}),
+                                     add_tarball_name => bool($c->{add_tarball_name}),
                                      finders => [ ':ExecFiles', ':InstallModules' ],
                                  },
                             },

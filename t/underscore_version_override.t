@@ -49,19 +49,19 @@ is( $tzil->version, '0.005', 'version was taken from the environment', );
 
 is(
     path( $tzil->tempdir, qw(build lib Foo.pm) )->slurp_utf8,
-    "package Foo;\n\nour \$VERSION = '0.005'; # from DZT-Sample-0.005.tar.gz\n\n1;\n",
+    "package Foo;\n\nour \$VERSION = '0.005';\n\n1;\n",
     'TRIAL comment is removed and version reset',
 );
 
 is(
     path( $tzil->tempdir, qw(build lib Foo Bar.pm) )->slurp_utf8,
-    "package Foo::Bar;\n\nour \$VERSION = '0.005'; # from DZT-Sample-0.005.tar.gz\n\n1;\n",
+    "package Foo::Bar;\n\nour \$VERSION = '0.005';\n\n1;\n",
     'eval line is removed and version reset',
 );
 
 is(
     path( $tzil->tempdir, qw(build lib Foo Baz.pm) )->slurp_utf8,
-    "package Foo::Baz;\n\nour \$VERSION = '0.005'; # from DZT-Sample-0.005.tar.gz\n\n1;\n",
+    "package Foo::Baz;\n\nour \$VERSION = '0.005';\n\n1;\n",
     'TRIAL comment and eval line are removed and version reset',
 );
 

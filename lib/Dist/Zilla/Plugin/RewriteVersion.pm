@@ -56,6 +56,22 @@ This enables hard-coding C<version => in C<dist.ini> among other tricks.
 
 has skip_version_provider => ( is => ro =>, lazy => 1, default => undef );
 
+=attr add_tarball_name
+
+If true, when the version is written, it will append a comment with the name of
+the tarball it comes from.  This helps users track down the source of a
+module if its name doesn't match the tarball name.  If the module is
+a TRIAL release, that is also in the comment.  For example:
+
+    our $VERSION = '0.010'; # from Foo-Bar-0.010.tar.gz
+    our $VERSION = '0.011'; # TRIAL from Foo-Bar-0.011-TRIAL.tar.gz
+
+This option defaults to false.
+
+=cut
+
+has add_tarball_name => ( is => ro =>, lazy => 1, default => undef );
+
 around dump_config => sub
 {
     my ($orig, $self) = @_;
@@ -63,7 +79,7 @@ around dump_config => sub
 
     $config->{+__PACKAGE__} = {
         finders => [ sort @{ $self->finder } ],
-        (map { $_ => $self->$_ ? 1 : 0 } qw(global skip_version_provider)),
+        (map { $_ => $self->$_ ? 1 : 0 } qw(global skip_version_provider add_tarball_name)),
     };
 
     return $config;
@@ -122,14 +138,13 @@ sub rewrite_version {
     my ( $self, $file, $version ) = @_;
 
     my $content = $file->content;
-    my $tarball = $self->zilla->archive_filename;
 
     my $code = "our \$VERSION = '$version';";
-    if ( $self->zilla->is_trial ) {
-        $code .= " # TRIAL from $tarball";
-    }
-    else {
-        $code .= " # from $tarball";
+    $code .= " # TRIAL" if $self->zilla->is_trial;
+
+    if ( $self->add_tarball_name ) {
+        my $tarball = $self->zilla->archive_filename;
+        $code .= ( $self->zilla->is_trial ? "" : " #" ) . " from $tarball";
     }
 
     $code .= "\n\$VERSION = eval \$VERSION;"
@@ -188,14 +203,6 @@ the various ways finding a version assignment could go wrong and to avoid
 using L<PPI>, which has similar complexity issues.
 
 For most modules, this should work just fine.
-
-When the version is written, it will append a comment with the name of
-the tarball it comes from.  This helps users track down the source of a
-module if its name doesn't match the tarball name.  If the module is
-a TRIAL release, that is also in the comment.  For example:
-
-    our $VERSION = '0.010'; # from Foo-Bar-0.010.tar.gz
-    our $VERSION = '0.011'; # TRIAL from Foo-Bar-0.011-TRIAL.tar.gz
 
 See L<BumpVersionAfterRelease|Dist::Zilla::Plugin::BumpVersionAfterRelease> for
 more details and usage examples.

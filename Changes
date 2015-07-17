@@ -6,6 +6,10 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
     - configurations are logged in metadata, when combined with [MetaConfig]
 
+    - new 'add_tarball_name' option, to add the tarball name as a comment to
+      files munged during build so the source is more evident (in case the
+      module name bears no relation to the tarball name).
+
     [CHANGED]
 
     - when a $VERSION is updated after release, the correct filename is
