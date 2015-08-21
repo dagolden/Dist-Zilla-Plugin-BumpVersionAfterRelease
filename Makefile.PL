@@ -12,7 +12,6 @@ my %WriteMakefileArgs = (
     "ExtUtils::MakeMaker" => "6.17"
   },
   "DISTNAME" => "Dist-Zilla-Plugin-BumpVersionAfterRelease",
-  "EXE_FILES" => [],
   "LICENSE" => "apache",
   "MIN_PERL_VERSION" => "5.008001",
   "NAME" => "Dist::Zilla::Plugin::BumpVersionAfterRelease",
@@ -58,7 +57,7 @@ my %FallbackPrereqs = (
   "Dist::Zilla::Role::FileMunger" => 5,
   "Dist::Zilla::Role::VersionProvider" => 0,
   "Exporter" => 0,
-  "ExtUtils::MakeMaker" => "6.17",
+  "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
   "Moose" => 0,
   "Path::Tiny" => "0.061",

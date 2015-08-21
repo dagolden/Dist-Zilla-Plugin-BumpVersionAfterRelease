@@ -69,7 +69,8 @@ sub _build__next_version {
     my $version = $self->zilla->version;
 
     $self->log_fatal(
-        "$version is not a valid version string (maybe you need 'allow_decimal_underscore')")
+        "$version is not an allowed version string (maybe you need 'allow_decimal_underscore')"
+      )
       unless $self->allow_decimal_underscore
       ? is_loose_version($version)
       : is_strict_version($version);
@@ -77,14 +78,13 @@ sub _build__next_version {
     return Version::Next::next_version($version);
 }
 
-around dump_config => sub
-{
-    my ($orig, $self) = @_;
+around dump_config => sub {
+    my ( $orig, $self ) = @_;
     my $config = $self->$orig;
 
-    $config->{+__PACKAGE__} = {
+    $config->{ +__PACKAGE__ } = {
         finders => [ sort @{ $self->finder } ],
-        (map { $_ => $self->$_ ? 1 : 0 } qw(global munge_makefile_pl)),
+        ( map { $_ => $self->$_ ? 1 : 0 } qw(global munge_makefile_pl) ),
     };
 
     return $config;
@@ -195,7 +195,14 @@ In your F<dist.ini>:
 
 After a release, this module modifies your original source code to replace an
 existing C<our $VERSION = '1.23'> declaration with the next number after the
-released version as determined by L<Version::Next>.  Only the B<first>
+released version as determined by L<Version::Next>.
+
+By default, versions B<must> be "strict" -- decimal or 3+ part tuple with a
+leading "v".  The C<allow_decimal_underscore> option, if enabled, will also
+allow decimals to contain an underscore.  All other version forms are
+not allowed, including: "v1.2", "1.2.3" and "v1.2.3_4".
+
+Only the B<first>
 occurrence is affected (unless you set the L</global> attribute) and it must
 exactly match this regular expression:
 

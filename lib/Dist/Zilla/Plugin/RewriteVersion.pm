@@ -72,14 +72,15 @@ This option defaults to false.
 
 has add_tarball_name => ( is => ro =>, lazy => 1, default => undef );
 
-around dump_config => sub
-{
-    my ($orig, $self) = @_;
+around dump_config => sub {
+    my ( $orig, $self ) = @_;
     my $config = $self->$orig;
 
-    $config->{+__PACKAGE__} = {
+    $config->{ +__PACKAGE__ } = {
         finders => [ sort @{ $self->finder } ],
-        (map { $_ => $self->$_ ? 1 : 0 } qw(global skip_version_provider add_tarball_name)),
+        (
+            map { $_ => $self->$_ ? 1 : 0 } qw(global skip_version_provider add_tarball_name)
+        ),
     };
 
     return $config;
@@ -120,7 +121,8 @@ sub munge_file {
     my $version = $self->zilla->version;
 
     $self->log_fatal(
-        "$version is not a valid version string (maybe you need 'allow_decimal_underscore')")
+        "$version is not an allowed version string (maybe you need 'allow_decimal_underscore')"
+      )
       unless $self->allow_decimal_underscore
       ? is_loose_version($version)
       : is_strict_version($version);
@@ -187,6 +189,11 @@ munges all gathered files to match.  You can override the version found with
 the C<V> environment variable, similar to
 L<Git::NextVersion|Dist::Zilla::Plugin::Git::NextVersion>, in which case all
 the gathered files have their C<$VERSION> set to that value.
+
+By default, versions B<must> be "strict" -- decimal or 3+ part tuple with a
+leading "v".  The C<allow_decimal_underscore> option, if enabled, will also
+allow decimals to contain an underscore.  All other version forms are
+not allowed, including: "v1.2", "1.2.3" and "v1.2.3_4".
 
 Only the B<first> occurrence of a C<$VERSION> declaration in each file is
 relevant and/or affected (unless the L</global> attribute is set and it must

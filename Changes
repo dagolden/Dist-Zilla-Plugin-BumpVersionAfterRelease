@@ -2,6 +2,15 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+    [CHANGED]
+
+    - Changed the error message for unsupported versions to indicate
+      they are not *allowed* rather than not *valid*.
+
+    [DOCUMENTED]
+
+    - Documented supported versions styles
+
 0.011     2015-07-17 06:31:46-04:00 America/New_York (TRIAL RELEASE)
 
     [ADDED]

@@ -42,7 +42,7 @@ subtest "without allow_decimal_underscore" => sub {
     $tzil->chrome->logger->set_debug(1);
     like(
         exception { $tzil->release },
-        qr/not a valid version.*allow_decimal_underscore/,
+        qr/not an allowed version.*allow_decimal_underscore/,
         'build and release proceed errors with underscore',
     );
 };
@@ -79,7 +79,7 @@ subtest "without allow_decimal_underscore (override)" => sub {
     $tzil->chrome->logger->set_debug(1);
     like(
         exception { $tzil->release },
-        qr/not a valid version.*allow_decimal_underscore/,
+        qr/not an allowed version.*allow_decimal_underscore/,
         'build and release proceed errors with underscore',
     );
 };
