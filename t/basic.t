@@ -220,7 +220,7 @@ for my $c (@cases) {
         ) or diag 'got distmeta: ', explain $tzil->distmeta;
 
         cmp_deeply(
-            $tzil->log_messages,
+            [ map { my $txt = $_; $txt =~ s/\\/\//g if $txt =~ /^\[BumpVersionAfterRelease\]/; $txt } @{$tzil->log_messages} ],
             superbagof(
                 '[RewriteVersion] updating $VERSION assignment in lib/DZT/Sample.pm',
                 '[BumpVersionAfterRelease] bumped $VERSION in ' . path($tzil->tempdir, qw(source lib DZT Sample.pm)),
