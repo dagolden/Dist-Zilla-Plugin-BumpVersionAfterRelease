@@ -196,7 +196,7 @@ allow decimals to contain an underscore.  All other version forms are
 not allowed, including: "v1.2", "1.2.3" and "v1.2.3_4".
 
 Only the B<first> occurrence of a C<$VERSION> declaration in each file is
-relevant and/or affected (unless the L</global> attribute is set and it must
+relevant and/or affected (unless the L</global> attribute is set) and it must
 exactly match this regular expression:
 
     qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
