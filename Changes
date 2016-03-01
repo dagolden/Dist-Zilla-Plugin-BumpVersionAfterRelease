@@ -2,6 +2,10 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+    [FIXED]
+
+    - Fixed version number validity checks.
+
     [DOCUMENTED]
 
     - Added missing closing parenthesis.
