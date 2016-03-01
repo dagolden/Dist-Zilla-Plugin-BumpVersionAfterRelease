@@ -10,20 +10,24 @@ use Path::Tiny;
 use Version::Next qw/next_version/;
 
 sub _new_tzil {
-    my $c = shift;
+    my $c       = shift;
     my @plugins = (
-      [ GatherDir => { exclude_filename => ['Makefile.PL'] } ],
-      'FakeRelease',
-      'MakeMaker',
-      'MetaConfig',
-       [ RewriteVersion => {
-              $c->{global} ? ( global => 1 ) : (),
-              $c->{add_tarball_name} ? ( add_tarball_name => 1 ) : (),
-         } ],
-       [ BumpVersionAfterRelease => {
-              $c->{global} ? ( global => 1 ) : (),
-              $c->{add_tarball_name} ? ( add_tarball_name => 1 ) : (),
-         } ],
+        [ GatherDir => { exclude_filename => ['Makefile.PL'] } ],
+        'FakeRelease',
+        'MakeMaker',
+        'MetaConfig',
+        [
+            RewriteVersion => {
+                $c->{global}           ? ( global           => 1 ) : (),
+                $c->{add_tarball_name} ? ( add_tarball_name => 1 ) : (),
+            }
+        ],
+        [
+            BumpVersionAfterRelease => {
+                $c->{global}           ? ( global           => 1 ) : (),
+                $c->{add_tarball_name} ? ( add_tarball_name => 1 ) : (),
+            }
+        ],
     );
 
     return Builder->from_config(
@@ -63,9 +67,9 @@ my @cases = (
         global   => 1,
     },
     {
-        label    => "simple rewrite, add_tarball_name",
-        version  => "0.005",
-        override => 1,
+        label            => "simple rewrite, add_tarball_name",
+        version          => "0.005",
+        override         => 1,
         add_tarball_name => 1,
     },
 );
@@ -103,16 +107,18 @@ for my $c (@cases) {
         );
 
         my $sample_bld = $tzil->slurp_file('build/lib/DZT/Sample.pm');
-        my $sample_re  = _regex_for_version( q['], $version,
+        my $sample_re = _regex_for_version( q['], $version,
             $c->{trial} || $c->{add_tarball_name}
-            ? '# ' . ($c->{trial} ? "TRIAL" : '')
-                   . ($c->{add_tarball_name} ? "from DZT-Sample-$version.tar.gz" : '')
+            ? '# '
+              . ( $c->{trial} ? "TRIAL" : '' )
+              . ( $c->{add_tarball_name} ? "from DZT-Sample-$version.tar.gz" : '' )
             : '' );
 
         like( $sample_bld, $sample_re, "single-quoted version line correct in built file" );
 
         my $count =()= $sample_bld =~ /$sample_re/mg;
-        my $exp = !$c->{add_tarball_name} && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
+        my $exp   = !$c->{add_tarball_name}
+          && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
         is( $count, $exp, "right number of replacements" )
           or diag $sample_bld;
 
@@ -155,7 +161,9 @@ for my $c (@cases) {
         my $next_re = _regex_for_version( q['], next_version($version) );
         $next_re = qr/$next_re$/m;
 
+        local $TODO = 'qr/...$/m is broken before 5.10' if $] lt '5.010000';
         like( $orig, $next_re, "version line updated in single-quoted source file" );
+        local $TODO;
 
         $count =()= $orig =~ /$next_re/mg;
         $exp = $c->{global} ? 2 : 1;
@@ -167,11 +175,11 @@ for my $c (@cases) {
 
         $orig = $tzil->slurp_file('source/lib/DZT/DQuote.pm');
 
-        like(
-            $orig,
-            $next_re,
+        local $TODO = 'qr/...$/m is broken before 5.10' if $] lt '5.010000';
+        like( $orig, $next_re,
             "version line updated from double-quotes to single-quotes in source file",
         );
+        local $TODO;
 
         like( $orig, qr/1;\s+# last line/, "last line correct in revised source file" );
 
@@ -185,45 +193,56 @@ for my $c (@cases) {
 
         cmp_deeply(
             $tzil->distmeta,
-            superhashof({
-                x_Dist_Zilla => superhashof({
-                    plugins => supersetof(
+            superhashof(
+                {
+                    x_Dist_Zilla => superhashof(
                         {
-                            class => 'Dist::Zilla::Plugin::RewriteVersion',
-                            config => {
-                                 'Dist::Zilla::Plugin::RewriteVersion' => {
-                                     global => bool($c->{global}),
-                                     skip_version_provider => bool($c->{skip_version_provider}),
-                                     add_tarball_name => bool($c->{add_tarball_name}),
-                                     finders => [ ':ExecFiles', ':InstallModules' ],
-                                 },
-                            },
-                            name => 'RewriteVersion',
-                            version => Dist::Zilla::Plugin::RewriteVersion->VERSION,
-                        },
-                        {
-                            class => 'Dist::Zilla::Plugin::BumpVersionAfterRelease',
-                            config => {
-                                'Dist::Zilla::Plugin::BumpVersionAfterRelease' => {
-                                    global => bool($c->{global}),
-                                    munge_makefile_pl => bool(1),
-                                    finders => [ ':ExecFiles', ':InstallModules' ],
+                            plugins => supersetof(
+                                {
+                                    class  => 'Dist::Zilla::Plugin::RewriteVersion',
+                                    config => {
+                                        'Dist::Zilla::Plugin::RewriteVersion' => {
+    global                => bool( $c->{global} ),
+    skip_version_provider => bool( $c->{skip_version_provider} ),
+    add_tarball_name      => bool( $c->{add_tarball_name} ),
+    finders               => [ ':ExecFiles', ':InstallModules' ],
+                                        },
+                                    },
+                                    name    => 'RewriteVersion',
+                                    version => Dist::Zilla::Plugin::RewriteVersion->VERSION,
                                 },
-                            },
-                            name => 'BumpVersionAfterRelease',
-                            version => Dist::Zilla::Plugin::BumpVersionAfterRelease->VERSION,
-                        },
+                                {
+                                    class  => 'Dist::Zilla::Plugin::BumpVersionAfterRelease',
+                                    config => {
+                                        'Dist::Zilla::Plugin::BumpVersionAfterRelease' => {
+    global            => bool( $c->{global} ),
+    munge_makefile_pl => bool(1),
+    finders           => [ ':ExecFiles', ':InstallModules' ],
+                                        },
+                                    },
+                                    name    => 'BumpVersionAfterRelease',
+                                    version => Dist::Zilla::Plugin::BumpVersionAfterRelease->VERSION,
+                                },
+                            ),
+                        }
                     ),
-                }),
-            }),
+                }
+            ),
             'plugin metadata, including dumped configs',
         ) or diag 'got distmeta: ', explain $tzil->distmeta;
 
         cmp_deeply(
-            [ map { my $txt = $_; $txt =~ s/\\/\//g if $txt =~ /^\[BumpVersionAfterRelease\]/; $txt } @{$tzil->log_messages} ],
+            [
+                map {
+                    my $txt = $_;
+                    $txt =~ s/\\/\//g if $txt =~ /^\[BumpVersionAfterRelease\]/;
+                    $txt
+                } @{ $tzil->log_messages }
+            ],
             superbagof(
                 '[RewriteVersion] updating $VERSION assignment in lib/DZT/Sample.pm',
-                '[BumpVersionAfterRelease] bumped $VERSION in ' . path($tzil->tempdir, qw(source lib DZT Sample.pm)),
+                '[BumpVersionAfterRelease] bumped $VERSION in '
+                  . path( $tzil->tempdir, qw(source lib DZT Sample.pm) ),
             ),
             'got appropriate log messages about updating both $VERSION statements, in both locations',
         );
