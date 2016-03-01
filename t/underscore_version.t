@@ -158,4 +158,36 @@ subtest "with allow_decimal_underscore" => sub {
       if not Test::Builder->new->is_passing;
 };
 
+subtest "alpha tuples prohibited" => sub {
+    my $tzil = Builder->from_config(
+        { dist_root => 'does-not-exist' },
+        {
+            add_files => {
+                path(qw(source dist.ini)) => dist_ini(
+                    { # configs as in simple_ini, but no version assignment
+                        name             => 'DZT-Sample',
+                        abstract         => 'Sample DZ Dist',
+                        author           => 'E. Xavier Ample <example@example.org>',
+                        license          => 'Perl_5',
+                        copyright_holder => 'E. Xavier Ample',
+                    },
+                    [ GatherDir               => ],
+                    [ MetaConfig              => ],
+                    [ RewriteVersion          => ],
+                    [ FakeRelease             => ],
+                    [ BumpVersionAfterRelease => ],
+                ),
+                path(qw(source lib Foo.pm)) => "package Foo;\n\nour \$VERSION = 'v1.2.3_4';\n\n1;\n",
+            },
+        },
+    );
+
+    $tzil->chrome->logger->set_debug(1);
+    like(
+        exception { $tzil->release },
+        qr/version tuples with alpha elements are not supported/,
+        'build and release proceed errors with underscore',
+    );
+};
+
 done_testing;

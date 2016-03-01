@@ -8,13 +8,6 @@ package Dist::Zilla::Plugin::BumpVersionAfterRelease;
 our $VERSION = '0.014';
 
 use Moose;
-with(
-    'Dist::Zilla::Role::AfterRelease' => { -version => 5 },
-    'Dist::Zilla::Role::FileFinderUser' =>
-      { default_finders => [ ':InstallModules', ':ExecFiles' ], },
-);
-
-use Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util;
 use namespace::autoclean;
 use version ();
 
@@ -68,27 +61,10 @@ sub _build__next_version {
     require Version::Next;
     my $version = $self->zilla->version;
 
-    $self->log_fatal(
-        "$version is not an allowed version string (maybe you need 'allow_decimal_underscore')"
-      )
-      unless $self->allow_decimal_underscore
-      ? is_loose_version($version)
-      : is_strict_version($version);
+    $self->check_valid_version($version);
 
     return Version::Next::next_version($version);
 }
-
-around dump_config => sub {
-    my ( $orig, $self ) = @_;
-    my $config = $self->$orig;
-
-    $config->{ +__PACKAGE__ } = {
-        finders => [ sort @{ $self->finder } ],
-        ( map { $_ => $self->$_ ? 1 : 0 } qw(global munge_makefile_pl) ),
-    };
-
-    return $config;
-};
 
 sub after_release {
     my ($self) = @_;
@@ -121,8 +97,6 @@ sub munge_file {
     return;
 }
 
-my $assign_regex = assign_re();
-
 sub rewrite_version {
     my ( $self, $file, $version ) = @_;
 
@@ -138,6 +112,8 @@ sub rewrite_version {
     my $code = "our \$VERSION = '$version';";
     $code .= "\n\$VERSION = eval \$VERSION;"
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
+
+    my $assign_regex = $self->assign_re();
 
     if (
         $self->global
@@ -173,6 +149,27 @@ sub rewrite_makefile_pl {
 
     return;
 }
+
+with(
+    'Dist::Zilla::Role::AfterRelease' => { -version => 5 },
+    'Dist::Zilla::Role::FileFinderUser' =>
+      { default_finders => [ ':InstallModules', ':ExecFiles' ], },
+    'Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util',
+);
+
+around dump_config => sub {
+    my ( $orig, $self ) = @_;
+    my $config = $self->$orig;
+
+    $config->{ +__PACKAGE__ } = {
+        finders => [ sort @{ $self->finder } ],
+        ( map { $_ => $self->$_ ? 1 : 0 } qw(global munge_makefile_pl) ),
+    };
+
+    return $config;
+};
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

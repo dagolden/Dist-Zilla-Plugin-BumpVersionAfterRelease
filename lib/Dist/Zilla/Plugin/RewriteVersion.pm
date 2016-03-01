@@ -8,14 +8,6 @@ package Dist::Zilla::Plugin::RewriteVersion;
 our $VERSION = '0.014';
 
 use Moose;
-with(
-    'Dist::Zilla::Role::FileMunger' => { -version => 5 },
-    'Dist::Zilla::Role::VersionProvider',
-    'Dist::Zilla::Role::FileFinderUser' =>
-      { default_finders => [ ':InstallModules', ':ExecFiles' ], },
-);
-
-use Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util;
 use namespace::autoclean;
 use version ();
 
@@ -42,8 +34,6 @@ has global => (
     is  => 'ro',
     isa => 'Bool',
 );
-
-my $assign_regex = assign_re();
 
 =attr skip_version_provider
 
@@ -72,20 +62,6 @@ This option defaults to false.
 
 has add_tarball_name => ( is => ro =>, lazy => 1, default => undef );
 
-around dump_config => sub {
-    my ( $orig, $self ) = @_;
-    my $config = $self->$orig;
-
-    $config->{ +__PACKAGE__ } = {
-        finders => [ sort @{ $self->finder } ],
-        (
-            map { $_ => $self->$_ ? 1 : 0 } qw(global skip_version_provider add_tarball_name)
-        ),
-    };
-
-    return $config;
-};
-
 sub provide_version {
     my ($self) = @_;
     return if $self->skip_version_provider;
@@ -94,6 +70,8 @@ sub provide_version {
 
     my $file    = $self->zilla->main_module;
     my $content = $file->content;
+
+    my $assign_regex = $self->assign_re();
 
     my ( $quote, $version ) = $content =~ m{^$assign_regex[^\n]*$}ms;
 
@@ -120,12 +98,7 @@ sub munge_file {
 
     my $version = $self->zilla->version;
 
-    $self->log_fatal(
-        "$version is not an allowed version string (maybe you need 'allow_decimal_underscore')"
-      )
-      unless $self->allow_decimal_underscore
-      ? is_loose_version($version)
-      : is_strict_version($version);
+    $self->check_valid_version($version);
 
     if ( $self->rewrite_version( $file, $version ) ) {
         $self->log_debug( [ 'updating $VERSION assignment in %s', $file->name ] );
@@ -152,6 +125,8 @@ sub rewrite_version {
     $code .= "\n\$VERSION = eval \$VERSION;"
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
+    my $assign_regex = $self->assign_re();
+
     if (
         $self->global
         ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
@@ -164,6 +139,28 @@ sub rewrite_version {
 
     return;
 }
+
+with(
+    'Dist::Zilla::Role::FileMunger' => { -version => 5 },
+    'Dist::Zilla::Role::VersionProvider',
+    'Dist::Zilla::Role::FileFinderUser' =>
+      { default_finders => [ ':InstallModules', ':ExecFiles' ], },
+    'Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util',
+);
+
+around dump_config => sub {
+    my ( $orig, $self ) = @_;
+    my $config = $self->$orig;
+
+    $config->{ +__PACKAGE__ } = {
+        finders => [ sort @{ $self->finder } ],
+        (
+            map { $_ => $self->$_ ? 1 : 0 } qw(global skip_version_provider add_tarball_name)
+        ),
+    };
+
+    return $config;
+};
 
 __PACKAGE__->meta->make_immutable;
 

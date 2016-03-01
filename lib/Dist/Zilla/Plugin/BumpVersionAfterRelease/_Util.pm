@@ -6,8 +6,9 @@ package Dist::Zilla::Plugin::BumpVersionAfterRelease::_Util;
 
 our $VERSION = '0.014';
 
-use base 'Exporter';
-our @EXPORT = qw( is_strict_version is_loose_version assign_re );
+use Moose::Role;
+
+requires 'allow_decimal_underscore';
 
 # version regexes from version.pm
 my $FRACTION_PART              = qr/\.[0-9]+/;
@@ -34,7 +35,14 @@ my $LAX_DOTTED_DECIMAL_VERSION = qr/
 sub is_strict_version { defined $_[0] && $_[0] =~ qr/\A $STRICT \z /x }
 
 sub is_loose_version {
-    defined $_[0] && $_[0] =~ qr/\A $STRICT | $LAX_DECIMAL_VERSION \z /x;
+    defined $_[0] && $_[0] =~ qr/\A (?: $STRICT | $LAX_DECIMAL_VERSION ) \z /x;
+}
+
+sub is_tuple_alpha {
+    my $v = shift;
+    return unless defined $v;
+    return unless $v =~ $LAX_DOTTED_DECIMAL_VERSION;
+    return $v =~ m{$LAX_ALPHA_PART\z};
 }
 
 # Because this is used for *capturing* or *replacing*, we take anything
@@ -48,6 +56,20 @@ sub assign_re {
         (?:\s* \# \s TRIAL)? [^\n]*
         (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
     }x;
+}
+
+sub check_valid_version {
+    my ( $self, $version ) = @_;
+
+    $self->log_fatal("version tuples with alpha elements are not supported")
+      if is_tuple_alpha($version);
+
+    $self->log_fatal(
+        "$version is not an allowed version string (maybe you need 'allow_decimal_underscore')"
+      )
+      unless $self->allow_decimal_underscore
+      ? is_loose_version($version)
+      : is_strict_version($version);
 }
 
 1;
