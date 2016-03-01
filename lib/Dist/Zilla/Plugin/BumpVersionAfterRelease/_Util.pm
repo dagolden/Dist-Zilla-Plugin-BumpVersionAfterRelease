@@ -74,7 +74,7 @@ sub check_valid_version {
 
 1;
 
-=for Pod::Coverage is_strict_version is_loose_version assign_re
+=for Pod::Coverage is_strict_version is_loose_version assign_re is_tuple_alpha check_valid_version
 
 =cut
 
