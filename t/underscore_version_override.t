@@ -2,7 +2,6 @@ use strict;
 use warnings;
 
 use Test::More;
-use if $ENV{AUTHOR_TESTING}, 'Test::Warnings';
 use Test::DZil;
 use Test::Fatal;
 use Path::Tiny;
