@@ -48,6 +48,19 @@ has munge_makefile_pl => (
     default => 1,
 );
 
+=attr munge_build_pl
+
+If there is a F<Build.PL> in the root of the repository, its version will be
+set as well.  Defaults to true.
+
+=cut
+
+has munge_build_pl => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 1,
+);
+
 has _next_version => (
     is       => 'ro',
     isa      => 'Str',
@@ -70,6 +83,7 @@ sub after_release {
     my ($self) = @_;
     $self->munge_file($_) for @{ $self->found_files };
     $self->rewrite_makefile_pl if -f "Makefile.PL" && $self->munge_makefile_pl;
+    $self->rewrite_build_pl if -f "Build.PL" && $self->munge_build_pl;
     return;
 }
 
@@ -150,6 +164,26 @@ sub rewrite_makefile_pl {
     return;
 }
 
+sub rewrite_build_pl {
+    my ($self) = @_;
+
+    my $next_version = $self->_next_version;
+
+    require Path::Tiny;
+    Path::Tiny->VERSION(0.061);
+
+    my $path = Path::Tiny::path("Build.PL");
+
+    my $content = $path->slurp_utf8;
+
+    if ( $content =~ s{"dist_version" => "[^"]+"}{"dist_version" => "$next_version"}ms ) {
+        $path->append_utf8( { truncate => 1 }, $content );
+        return 1;
+    }
+
+    return;
+}
+
 with(
     'Dist::Zilla::Role::AfterRelease' => { -version => 5 },
     'Dist::Zilla::Role::FileFinderUser' =>
@@ -173,7 +207,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=for Pod::Coverage after_release munge_file rewrite_makefile_pl rewrite_version
+=for Pod::Coverage after_release munge_file rewrite_build_pl rewrite_makefile_pl rewrite_version
 
 =head1 SYNOPSIS
 

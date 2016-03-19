@@ -2,6 +2,10 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+    [ADDED]
+
+    - Support for the [ModuleBuild] plugin. Added by Dave Rolsky. GitHub #22.
+
 0.014     2016-03-01 13:58:33-05:00 America/New_York
 
     [FIXED]
