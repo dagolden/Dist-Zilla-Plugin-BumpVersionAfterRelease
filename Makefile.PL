@@ -16,6 +16,7 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.008001",
   "NAME" => "Dist::Zilla::Plugin::BumpVersionAfterRelease",
   "PREREQ_PM" => {
+    "Dist::Zilla" => "5.040",
     "Dist::Zilla::Role::AfterRelease" => 5,
     "Dist::Zilla::Role::FileFinderUser" => 0,
     "Dist::Zilla::Role::FileMunger" => 5,
@@ -38,7 +39,6 @@ my %WriteMakefileArgs = (
     "Test::Deep" => 0,
     "Test::Fatal" => 0,
     "Test::More" => "0.96",
-    "if" => 0,
     "utf8" => 0
   },
   "VERSION" => "0.015",
@@ -49,6 +49,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "Dist::Zilla" => "5.040",
   "Dist::Zilla::File::InMemory" => 0,
   "Dist::Zilla::Role::AfterRelease" => 5,
   "Dist::Zilla::Role::FileFinderUser" => 0,
@@ -65,7 +66,6 @@ my %FallbackPrereqs = (
   "Test::Fatal" => 0,
   "Test::More" => "0.96",
   "Version::Next" => 0,
-  "if" => 0,
   "namespace::autoclean" => 0,
   "strict" => 0,
   "utf8" => 0,
