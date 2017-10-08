@@ -26,7 +26,7 @@ has allow_decimal_underscore => (
 =attr global
 
 If true, all occurrences of the version pattern will be replaced.  Otherwise,
-only the first occurrence is replaced.  Defaults to false.
+only the first occurrence in each file is replaced.  Defaults to false.
 
 =cut
 
