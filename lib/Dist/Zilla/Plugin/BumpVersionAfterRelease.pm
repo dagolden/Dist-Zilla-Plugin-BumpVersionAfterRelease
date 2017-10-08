@@ -35,6 +35,18 @@ has global => (
     isa => 'Bool',
 );
 
+=attr all_matching
+
+If true, only versions matching that of the last release will be replaced.
+Defaults to false.
+
+=cut
+
+has all_matching => (
+    is  => 'ro',
+    isa => 'Bool',
+);
+
 =attr munge_makefile_pl
 
 If there is a F<Makefile.PL> in the root of the repository, its version will be
@@ -128,11 +140,12 @@ sub rewrite_version {
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
     my $assign_regex = $self->assign_re();
+    my $matching_regex = $self->matching_re($self->zilla->version);
 
     if (
-        $self->global
-        ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
-        : ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms )
+            $self->global ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
+          : $self->all_matching ? ( $content =~ s{^$matching_regex[^\n]*$}{$code}msg  )
+          : ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms )
       )
     {
         # append+truncate to preserve file mode
