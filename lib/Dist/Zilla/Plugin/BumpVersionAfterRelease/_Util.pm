@@ -59,7 +59,7 @@ sub assign_re {
 }
 
 sub matching_re {
-    my ($self, $release_version) = @_;
+    my ( $self, $release_version ) = @_;
     return qr{
         our \s+ \$VERSION \s* = \s*
         (['"])(\Q$release_version\E)\1 \s* ;
@@ -84,7 +84,8 @@ sub check_valid_version {
 
 1;
 
-=for Pod::Coverage is_strict_version is_loose_version assign_re is_tuple_alpha check_valid_version
+=for Pod::Coverage is_strict_version is_loose_version assign_re
+is_tuple_alpha check_valid_version matching_re
 
 =cut
 
