@@ -17,16 +17,26 @@ matrix:
       env: COVERAGE=1
   allow_failures:
     - perl: "blead"
+env:
+  global:
+    - AUTHOR_TESTING=1
+    - AUTOMATED_TESTING=1
+    - RELEASE_TESTING=0
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
+  - build-dist
+  - cd $BUILD_DIR
 install:
   - cpan-install --deps       # installs prereqs, including recommends
   - cpan-install --coverage   # installs converage prereqs, if enabled
 before_script:
   - coverage-setup
-script: perl Makefile.PL && make test
+script:
+  - perl Makefile.PL
+  - make
+  - prove -b -r -s -j1 $(test-files)
 after_success:
   - coverage-report
