@@ -2,6 +2,11 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+    [CHANGED]
+
+    - [BumpVersionAfterRelease] log message now identifies which version it is
+      trying to replace, when all_matching = 1
+
 0.016     2017-11-26 16:54:54-05:00 America/New_York
 
     [ADDED]
