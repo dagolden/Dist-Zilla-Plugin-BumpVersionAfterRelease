@@ -30,10 +30,10 @@ subtest "without allow_decimal_underscore" => sub {
                     [ BumpVersionAfterRelease => ],
                 ),
                 path(qw(source lib Foo.pm)) => "package Foo;\n\nour \$VERSION = '0.004_002';\n\n1;\n",
-                path(qw(source lib Foo Bar.pm)) =>
-                  "package Foo::Bar;\n\nour \$VERSION = '0.004_002';\n\$VERSION = eval \$VERSION;\n\n1;\n",
-                path(qw(source lib Foo Baz.pm)) =>
-                  "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+                path(qw(source lib Foo Eval.pm)) =>
+                  "package Foo::Eval;\n\nour \$VERSION = '0.004_002';\n\$VERSION = eval \$VERSION;\n\n1;\n",
+                path(qw(source lib Foo Eval Trial.pm)) =>
+                  "package Foo::Eval::Trial;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
             },
         },
     );
@@ -67,10 +67,10 @@ subtest "without allow_decimal_underscore (override)" => sub {
                     [ BumpVersionAfterRelease => ],
                 ),
                 path(qw(source lib Foo.pm)) => "package Foo;\n\nour \$VERSION = '0.004002';\n\n1;\n",
-                path(qw(source lib Foo Bar.pm)) =>
-                  "package Foo::Bar;\n\nour \$VERSION = '0.004002';\n\$VERSION = eval \$VERSION;\n\n1;\n",
-                path(qw(source lib Foo Baz.pm)) =>
-                  "package Foo::Baz;\n\nour \$VERSION = '0.004002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+                path(qw(source lib Foo Eval.pm)) =>
+                  "package Foo::Eval;\n\nour \$VERSION = '0.004002';\n\$VERSION = eval \$VERSION;\n\n1;\n",
+                path(qw(source lib Foo Eval Trial.pm)) =>
+                  "package Foo::Eval Trial;\n\nour \$VERSION = '0.004002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
             },
         },
     );
@@ -104,10 +104,10 @@ subtest "with allow_decimal_underscore" => sub {
                 ),
                 path(qw(source lib Foo.pm)) =>
                   "package Foo;\n\nour \$VERSION = '0.004_002';\n\n1;\n",
-                path(qw(source lib Foo Bar.pm)) =>
-                  "package Foo::Bar;\n\nour \$VERSION = '0.004_002';\n\$VERSION = eval \$VERSION;\n\n1;\n",
-                path(qw(source lib Foo Baz.pm)) =>
-                  "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+                path(qw(source lib Foo Eval.pm)) =>
+                  "package Foo::Eval;\n\nour \$VERSION = '0.004_002';\n\$VERSION = eval \$VERSION;\n\n1;\n",
+                path(qw(source lib Foo Eval Trial.pm)) =>
+                  "package Foo::Eval::Trial;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
             },
         },
     );
@@ -124,14 +124,14 @@ subtest "with allow_decimal_underscore" => sub {
     );
 
     is(
-        path( $tzil->tempdir, qw(build lib Foo Bar.pm) )->slurp_utf8,
-        "package Foo::Bar;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+        path( $tzil->tempdir, qw(build lib Foo Eval.pm) )->slurp_utf8,
+        "package Foo::Eval;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
         'TRIAL comment is added; eval line is retained',
     );
 
     is(
-        path( $tzil->tempdir, qw(build lib Foo Baz.pm) )->slurp_utf8,
-        "package Foo::Baz;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
+        path( $tzil->tempdir, qw(build lib Foo Eval Trial.pm) )->slurp_utf8,
+        "package Foo::Eval::Trial;\n\nour \$VERSION = '0.004_002'; # TRIAL\n\$VERSION = eval \$VERSION;\n\n1;\n",
         'TRIAL comment and eval line are retained',
     );
 
@@ -142,14 +142,14 @@ subtest "with allow_decimal_underscore" => sub {
     );
 
     is(
-        path( $tzil->tempdir, qw(source lib Foo Bar.pm) )->slurp_utf8,
-        "package Foo::Bar;\n\nour \$VERSION = '0.004_003';\n\$VERSION = eval \$VERSION;\n\n1;\n",
+        path( $tzil->tempdir, qw(source lib Foo Eval.pm) )->slurp_utf8,
+        "package Foo::Eval;\n\nour \$VERSION = '0.004_003';\n\$VERSION = eval \$VERSION;\n\n1;\n",
         '.pm contents in source saw the underscore version incremented and eval retained',
     );
 
     is(
-        path( $tzil->tempdir, qw(source lib Foo Baz.pm) )->slurp_utf8,
-        "package Foo::Baz;\n\nour \$VERSION = '0.004_003';\n\$VERSION = eval \$VERSION;\n\n1;\n",
+        path( $tzil->tempdir, qw(source lib Foo Eval Trial.pm) )->slurp_utf8,
+        "package Foo::Eval::Trial;\n\nour \$VERSION = '0.004_003';\n\$VERSION = eval \$VERSION;\n\n1;\n",
         '.pm contents in source saw the underscore version incremented, TRIAL comment removed and eval retained',
     );
 
