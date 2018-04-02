@@ -137,7 +137,7 @@ sub rewrite_version {
       Path::Tiny::path( $file->_original_name )->slurp( { binmode => $iolayer } );
 
     my $code = "our \$VERSION = '$version';";
-    $code .= "\n\$VERSION = eval \$VERSION;"
+    $code .= "\n\$VERSION =~ tr/_//d;"
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
     my $assign_regex = $self->assign_re();
@@ -339,7 +339,7 @@ use underscores in decimal versions.  In this case, the following line will
 be added after the C<$VERSION> assignment to ensure the underscore is
 removed at runtime:
 
-    $VERSION = eval $VERSION;
+    $VERSION =~ tr/_//d;
 
 Despite their long history on CPAN, the author does not recommend the use
 of decimal underscore versions with Dist::Zilla, as Dist::Zilla supports
@@ -352,19 +352,19 @@ line, it's obvious in the source that the module is a development release.
 With both source and tarball obviously marked "TRIAL", most of the
 historical need for underscore in a version is taken care of.
 
-Using decimal underscores (with the "eval" hack ) introduces a subtle
+Using decimal underscores (with the "tr" hack ) introduces a subtle
 difference between what the C<< MM->parse_version >> thinks the version is
 (and what is in META) and what Perl thinks the version is at runtime.
 
     Foo->VERSION eq MM->parse_version( $INC{"Foo.pm"} )
 
 This would be false for the version "1.002_003" with
-C<$VERSION = eval $VERSION>.  Much of the toolchain has heuristics to
+C<$VERSION =~ tr/_//d>.  Much of the toolchain has heuristics to
 deal with this, but it may be an issue depending on exactly what
 version of toolchain modules you have installed.  You can avoid all of
 it by just not using underscores.
 
-On the other hand, using underscores and B<not> using C<eval $VERSION>
+On the other hand, using underscores and B<not> using the "tr" hack
 leads to even worse problems trying to specify a version number with
 C<use>:
 

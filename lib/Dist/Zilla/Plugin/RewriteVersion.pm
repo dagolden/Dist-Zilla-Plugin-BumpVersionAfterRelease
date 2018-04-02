@@ -122,7 +122,7 @@ sub rewrite_version {
         $code .= ( $self->zilla->is_trial ? "" : " #" ) . " from $tarball";
     }
 
-    $code .= "\n\$VERSION = eval \$VERSION;"
+    $code .= "\n\$VERSION =~ tr/_//d;"
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
     my $assign_regex = $self->assign_re();
