@@ -55,6 +55,8 @@ sub assign_re {
         (['"])($LAX_DECIMAL_VERSION | $LAX_DOTTED_DECIMAL_VERSION)\1 \s* ;
         (?:\s* \# \s TRIAL)? [^\n]*
         (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
+        (?:\n \$VERSION \s =~ \s tr/_//d;)?
+        (?:\n \$VERSION \s =~ \s s/_//g;)?
     }x;
 }
 
@@ -65,6 +67,8 @@ sub matching_re {
         (['"])(\Q$release_version\E)\1 \s* ;
         (?:\s* \# \s TRIAL)? [^\n]*
         (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
+        (?:\n \$VERSION \s =~ \s tr/_//d;)?
+        (?:\n \$VERSION \s =~ \s s/_//g;)?
     }x;
 }
 
