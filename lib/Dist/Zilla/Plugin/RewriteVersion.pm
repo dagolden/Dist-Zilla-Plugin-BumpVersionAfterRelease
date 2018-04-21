@@ -5,7 +5,7 @@ use warnings;
 package Dist::Zilla::Plugin::RewriteVersion;
 # ABSTRACT: Get and/or rewrite module versions to match distribution version
 
-our $VERSION = '0.018';
+our $VERSION = '0.019';
 
 use Moose;
 use namespace::autoclean;
