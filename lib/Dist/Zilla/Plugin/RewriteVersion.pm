@@ -113,7 +113,7 @@ sub rewrite_version {
     my ( $self, $file, $version ) = @_;
 
     my $content = $file->content;
-$DB::single = $file->name =~ /Indented/  ? 1 : 0;
+
     my $code = "our \$VERSION = '$version';";
     $code .= " # TRIAL" if $self->zilla->is_trial;
 
