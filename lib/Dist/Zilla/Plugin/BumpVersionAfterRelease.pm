@@ -140,13 +140,13 @@ sub rewrite_version {
     $code .= "\n\$VERSION =~ tr/_//d;"
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
-    my $assign_regex = $self->assign_re();
-    my $matching_regex = $self->matching_re($self->zilla->version);
+    my $assign_regex   = $self->assign_re();
+    my $matching_regex = $self->matching_re( $self->zilla->version );
 
     if (
-            $self->global ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
-          : $self->all_matching ? ( $content =~ s{^$matching_regex[^\n]*$}{$code}msg  )
-          : ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms )
+          $self->global       ? ( $content =~ s{^$assign_regex[^\n]*$}   {$1$code}msg )
+        : $self->all_matching ? ( $content =~ s{^$matching_regex[^\n]*$} {$1$code}msg )
+        :                       ( $content =~ s{^$assign_regex[^\n]*$}   {$1$code}ms )
       )
     {
         # append+truncate to preserve file mode
@@ -251,7 +251,7 @@ Only the B<first>
 occurrence is affected (unless you set the L</global> attribute) and it must
 exactly match this regular expression:
 
-    qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
+    qr{^ \s* our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
 
 It must be at the start of a line and any trailing comments are deleted.  The
 original may have double-quotes, but the re-written line will have single

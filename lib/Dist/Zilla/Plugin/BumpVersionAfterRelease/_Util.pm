@@ -49,10 +49,14 @@ sub is_tuple_alpha {
 # that is a lax version (but not literal string 'undef', so we don't want
 # version::LAX).  Later anything captured needs to be checked with the
 # strict or loose version check functions.
+# $1 is optional leading whitespace
+# $2 is the quote mark (' or ") around the version number
+# $3 is the version number
 sub assign_re {
     return qr{
+        (\s*)
         our \s+ \$VERSION \s* = \s*
-        (['"])($LAX_DECIMAL_VERSION | $LAX_DOTTED_DECIMAL_VERSION)\1 \s* ;
+        (['"])($LAX_DECIMAL_VERSION | $LAX_DOTTED_DECIMAL_VERSION)\2 \s* ;
         (?:\s* \# \s TRIAL)? [^\n]*
         (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
         (?:\n \$VERSION \s =~ \s tr/_//d;)?
@@ -63,8 +67,9 @@ sub assign_re {
 sub matching_re {
     my ( $self, $release_version ) = @_;
     return qr{
+        (\s*)
         our \s+ \$VERSION \s* = \s*
-        (['"])(\Q$release_version\E)\1 \s* ;
+        (['"])(\Q$release_version\E)\2 \s* ;
         (?:\s* \# \s TRIAL)? [^\n]*
         (?:\n \$VERSION \s = \s eval \s \$VERSION;)?
         (?:\n \$VERSION \s =~ \s tr/_//d;)?

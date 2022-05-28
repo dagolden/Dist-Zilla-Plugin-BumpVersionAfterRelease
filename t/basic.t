@@ -3,6 +3,7 @@ use warnings;
 use Test::More 0.96;
 use utf8;
 
+use lib 'lib';
 use Test::DZil;
 use Test::Fatal;
 use Test::Deep;
@@ -93,8 +94,8 @@ my @cases = (
 sub _regex_for_version {
     my ( $q, $version, $trailing ) = @_;
     my $exp = $trailing
-      ? qr{^our \$VERSION = $q\Q$version\E$q; \Q$trailing\E}m
-      : qr{^our \$VERSION = $q\Q$version\E$q;}m;
+      ? qr{^\s*our \$VERSION = $q\Q$version\E$q; \Q$trailing\E}m
+      : qr{^\s*our \$VERSION = $q\Q$version\E$q;}m;
     return $exp;
 }
 
@@ -137,6 +138,31 @@ for my $c (@cases) {
           && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
         is( $count, $exp, "right number of replacements" )
           or diag $sample_bld;
+
+        subtest 'indented' => sub {
+            my $indented_src = $tzil->slurp_file('source/lib/DZT/Indented.pm');
+            like(
+                $indented_src,
+                _regex_for_version( q['], '0.001', "# comment" ),
+                "single-quoted version line correct in indented source file",
+            );
+
+            my $indented_bld = $tzil->slurp_file('build/lib/DZT/Indented.pm');
+            my $indented_re = _regex_for_version( q['], $version,
+                $c->{trial} || $c->{add_tarball_name}
+                ? '# '
+                . ( $c->{trial} ? "TRIAL" : '' )
+                . ( $c->{add_tarball_name} ? "from DZT-Indented-$version.tar.gz" : '' )
+                : '' );
+
+            like( $indented_bld, $indented_re, "single-quoted version line correct in built file" );
+
+            $count =()= $indented_bld =~ /$indented_re/mg;
+            $exp   = !$c->{add_tarball_name}
+            && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
+            is( $count, $exp, "right number of replacements" )
+            or diag $indented_bld;
+        };
 
         like(
             $tzil->slurp_file('source/lib/DZT/DQuote.pm'),
