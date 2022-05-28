@@ -3,7 +3,6 @@ use warnings;
 use Test::More 0.96;
 use utf8;
 
-use lib 'lib';
 use Test::DZil;
 use Test::Fatal;
 use Test::Deep;
