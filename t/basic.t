@@ -148,27 +148,15 @@ for my $c (@cases) {
             );
 
             my $indented_bld = $tzil->slurp_file('build/lib/DZT/Indented.pm');
-            my $indented_re  = _regex_for_version( q['], $version,
-                $c->{trial} || $c->{add_tarball_name}
-                ? '# '
-                  . ( $c->{trial}            ? "TRIAL"                             : '' )
-                  . ( $c->{add_tarball_name} ? "from DZT-Indented-$version.tar.gz" : '' )
-                : '' );
 
-            TODO: {
-                local $TODO =
-                  ( $label =~ /simple rewrite/ )
-                  ? "The code is correct, the regex passes in my debugger. Don't know why the test fails"
-                  : undef;
-                like( $indented_bld, $indented_re,
-                    "single-quoted version line correct in built file" );
+            like( $indented_bld, $sample_re,
+                "single-quoted version line correct in built file" );
 
-                $count =()= $indented_bld =~ /$indented_re/mg;
-                $exp   = !$c->{add_tarball_name}
-                  && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
-                is( $count, $exp, "right number of replacements" )
-                  or diag $indented_bld;
-            }
+            $count =()= $indented_bld =~ /$sample_re/mg;
+            $exp   = !$c->{add_tarball_name}
+              && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
+            is( $count, $exp, "right number of replacements" )
+              or diag $indented_bld;
         };
 
         like(

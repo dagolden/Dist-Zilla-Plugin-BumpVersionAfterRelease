@@ -1,8 +1,8 @@
 package DZT::Indented {
-    # ABSTRACT: a sample module
+    # ABSTRACT: postfix block module
     our $VERSION = '0.001'; # comment
 
-    package DZT::Inner;
+    package DZT::Inner::Peace;
     our $VERSION = '0.001';
 }
 
