@@ -23,6 +23,17 @@ has allow_decimal_underscore => (
     isa => 'Bool',
 );
 
+=attr allow_leading_whitespace
+
+Allows use of whitespace before C<our> in C<our $VERSION ...>. Default is false.
+
+=cut
+
+has allow_leading_whitespace => (
+    is  => 'ro',
+    isa => 'Bool',
+);
+
 =attr global
 
 If true, all occurrences of the version pattern will be replaced.  Otherwise,
@@ -197,6 +208,9 @@ relevant and/or affected (unless the L</global> attribute is set) and it must
 exactly match this regular expression:
 
     qr{^ \s* our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
+
+Leading whitespace is allowed before C<our> if the C<allow_leading_whitespace>
+option is set to true.
 
 It must be at the start of a line and any trailing comments are deleted.  The
 original may have double-quotes, but the re-written line will have single

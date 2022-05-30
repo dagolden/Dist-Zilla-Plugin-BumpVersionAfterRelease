@@ -138,26 +138,6 @@ for my $c (@cases) {
         is( $count, $exp, "right number of replacements" )
           or diag $sample_bld;
 
-        subtest 'indented' => sub {
-            my $indented_src = $tzil->slurp_file('source/lib/DZT/Indented.pm');
-            like(
-                $indented_src,
-                _regex_for_version( q['], '0.001', "# comment" ),
-                "single-quoted version line correct in indented source file",
-            );
-
-            my $indented_bld = $tzil->slurp_file('build/lib/DZT/Indented.pm');
-
-            like( $indented_bld, $sample_re,
-                "single-quoted version line correct in built file" );
-
-            $count =()= $indented_bld =~ /$sample_re/mg;
-            $exp   = !$c->{add_tarball_name}
-              && ( $c->{global} || ( !$c->{trial} && $label =~ /identity/ ) ) ? 2 : 1;
-            is( $count, $exp, "right number of replacements" )
-              or diag $indented_bld;
-        };
-
         like(
             $tzil->slurp_file('source/lib/DZT/DQuote.pm'),
             _regex_for_version( q["], '0.001', "# comment" ),
