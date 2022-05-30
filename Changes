@@ -2,6 +2,12 @@ Revision history for Dist-Zilla-Plugin-BumpVersionAfterRelease
 
 {{$NEXT}}
 
+    [Added]
+
+	- New "allow_leading_whitespace" option for [BumpVersionAfterRelease] and
+	  [RewriteVersion] allows the "our $VERSION = ...;" declaration to be
+	  indented.
+
 0.018     2018-04-21 22:32:15+02:00 Europe/Oslo
 
     [CHANGED]

@@ -23,6 +23,17 @@ has allow_decimal_underscore => (
     isa => 'Bool',
 );
 
+=attr allow_leading_whitespace
+
+Allows use of whitespace before C<our> in C<our $VERSION ...>. Default is false.
+
+=cut
+
+has allow_leading_whitespace => (
+    is  => 'ro',
+    isa => 'Bool',
+);
+
 =attr global
 
 If true, all occurrences of the version pattern will be replaced.  Otherwise,
@@ -73,7 +84,7 @@ sub provide_version {
 
     my $assign_regex = $self->assign_re();
 
-    my ( $quote, $version ) = $content =~ m{^$assign_regex[^\n]*$}ms;
+    my ( $ignore_leading_whitespace, $quote, $version ) = $content =~ m{^$assign_regex[^\n]*$}ms;
 
     $self->log_debug( [ 'extracted version from main module: %s', $version ] )
       if $version;
@@ -129,8 +140,8 @@ sub rewrite_version {
 
     if (
         $self->global
-        ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
-        : ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms )
+        ? ( $content =~ s{^$assign_regex[^\n]*$}{$1$code}msg )
+        : ( $content =~ s{^$assign_regex[^\n]*$}{$1$code}ms )
       )
     {
         $file->content($content);
@@ -196,7 +207,10 @@ Only the B<first> occurrence of a C<$VERSION> declaration in each file is
 relevant and/or affected (unless the L</global> attribute is set) and it must
 exactly match this regular expression:
 
-    qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
+    qr{^ \s* our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
+
+Leading whitespace is allowed before C<our> if the C<allow_leading_whitespace>
+option is set to true.
 
 It must be at the start of a line and any trailing comments are deleted.  The
 original may have double-quotes, but the re-written line will have single

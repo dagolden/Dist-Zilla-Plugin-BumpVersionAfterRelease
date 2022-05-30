@@ -23,6 +23,17 @@ has allow_decimal_underscore => (
     isa => 'Bool',
 );
 
+=attr allow_leading_whitespace
+
+Allows use of whitespace before C<our> in C<our $VERSION ...>. Default is false.
+
+=cut
+
+has allow_leading_whitespace => (
+    is  => 'ro',
+    isa => 'Bool',
+);
+
 =attr global
 
 If true, all occurrences of the version pattern will be replaced.  Otherwise,
@@ -140,13 +151,13 @@ sub rewrite_version {
     $code .= "\n\$VERSION =~ tr/_//d;"
       if $version =~ /_/ and scalar( $version =~ /\./g ) <= 1;
 
-    my $assign_regex = $self->assign_re();
-    my $matching_regex = $self->matching_re($self->zilla->version);
+    my $assign_regex   = $self->assign_re();
+    my $matching_regex = $self->matching_re( $self->zilla->version );
 
     if (
-            $self->global ? ( $content =~ s{^$assign_regex[^\n]*$}{$code}msg )
-          : $self->all_matching ? ( $content =~ s{^$matching_regex[^\n]*$}{$code}msg  )
-          : ( $content =~ s{^$assign_regex[^\n]*$}{$code}ms )
+          $self->global       ? ( $content =~ s{^$assign_regex[^\n]*$}   {$1$code}msg )
+        : $self->all_matching ? ( $content =~ s{^$matching_regex[^\n]*$} {$1$code}msg )
+        :                       ( $content =~ s{^$assign_regex[^\n]*$}   {$1$code}ms )
       )
     {
         # append+truncate to preserve file mode
@@ -247,11 +258,13 @@ leading "v".  The C<allow_decimal_underscore> option, if enabled, will also
 allow decimals to contain an underscore.  All other version forms are
 not allowed, including: "v1.2", "1.2.3" and "v1.2.3_4".
 
-Only the B<first>
-occurrence is affected (unless you set the L</global> attribute) and it must
-exactly match this regular expression:
+Only the B<first> occurrence is affected (unless you set the L</global>
+attribute) and it must exactly match this regular expression:
 
-    qr{^our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
+    qr{^ our \s+ \$VERSION \s* = \s* '$version::LAX'}mx
+
+Leading whitespace is allowed before C<our> if the C<allow_leading_whitespace>
+option is set to true.
 
 It must be at the start of a line and any trailing comments are deleted.  The
 original may have double-quotes, but the re-written line will have single
