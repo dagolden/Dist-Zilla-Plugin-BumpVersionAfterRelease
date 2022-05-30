@@ -44,7 +44,7 @@ subtest "without allow_leading_whitespace" => sub {
 };
 
 subtest "with allow_leading_whitespace" => sub {
-    $ENV{v} = '0.005';
+    local $ENV{v} = '0.005';
     my $tzil = Builder->from_config(
         { dist_root => 'does-not-exist' },
         {
@@ -126,7 +126,6 @@ subtest "with allow_leading_whitespace" => sub {
 
     is(
         path( $tzil->tempdir, qw(source lib Tabs.pm) )->slurp_utf8,
-
         "package Foo;\n\n\t\tour \$VERSION = '0.005';\n1;\n",
         'Source version bumped: Leading tabs are preserved',
     );

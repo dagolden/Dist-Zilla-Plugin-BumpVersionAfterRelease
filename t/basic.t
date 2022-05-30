@@ -93,8 +93,8 @@ my @cases = (
 sub _regex_for_version {
     my ( $q, $version, $trailing ) = @_;
     my $exp = $trailing
-      ? qr{^\s*our \$VERSION = $q\Q$version\E$q; \Q$trailing\E}m
-      : qr{^\s*our \$VERSION = $q\Q$version\E$q;}m;
+      ? qr{^our \$VERSION = $q\Q$version\E$q; \Q$trailing\E}m
+      : qr{^our \$VERSION = $q\Q$version\E$q;}m;
     return $exp;
 }
 
