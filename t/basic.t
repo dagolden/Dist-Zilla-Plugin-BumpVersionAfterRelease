@@ -177,7 +177,7 @@ for my $c (@cases) {
         my $next_re = _regex_for_version( q['], next_version($version) );
         $next_re = qr/$next_re$/m;
 
-        local $TODO = 'qr/...$/m is broken before 5.10' if $] lt '5.010000';
+        local $TODO = 'qr/...$/m is broken before 5.10' if "$]" < '5.010000';
         if (!$c->{all_matching} || $version eq '0.001') {
             like( $orig, $next_re, "version line updated in single-quoted source file" );
         }
@@ -200,7 +200,7 @@ for my $c (@cases) {
 
         $orig = $tzil->slurp_file('source/lib/DZT/DQuote.pm');
 
-        local $TODO = 'qr/...$/m is broken before 5.10' if $] lt '5.010000';
+        local $TODO = 'qr/...$/m is broken before 5.10' if "$]" < '5.010000';
         if (!$c->{all_matching} || $version eq '0.001') {
             like( $orig, $next_re, "version line updated from double-quotes to single-quotes in source file");
         }
@@ -213,7 +213,7 @@ for my $c (@cases) {
 
         $orig = $tzil->slurp_file('source/lib/DZT/Mismatched.pm');
 
-        local $TODO = 'qr/...$/m is broken before 5.10' if $] lt '5.010000';
+        local $TODO = 'qr/...$/m is broken before 5.10' if "$]" < '5.010000';
 
         if ($c->{all_matching} && $version ne '0.003' && $version ne '0.004') {
             unlike( $orig, $next_re, "version line not updated in source file - did not match release version");
